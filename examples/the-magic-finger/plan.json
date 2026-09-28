@@ -1,0 +1,59 @@
+{
+  "title": "The Magic Finger — opening scene",
+  "clips": [
+    {
+      "id": "neighbours",
+      "source_text": "The farm next to ours is owned by Mr and Mrs Gregg. The Greggs have two children, both of them boys. Their names are Philip and William. Sometimes I go over to their farm to play with them.\n\nI am a girl and I am eight years old.\n\nPhilip is also eight years old.\n\nWilliam is three years older. He is ten.",
+      "text": "The farm next to ours is owned by Mr and Mrs Gregg. The Greggs have two children, both of them boys. Their names are Philip and William. Sometimes I go over to their farm to play with them.\n\nI am a girl and I am eight years old.\n\nPhilip is also eight years old.\n\nWilliam is three years older. He is ten.",
+      "voice": "Leda",
+      "style": "Matter-of-fact and conversational; let the mistaken arithmetic pass without signalling a joke."
+    },
+    {
+      "id": "correction",
+      "source_text": "What?\n\nOh, all right, then.\n\nHe is eleven.\n\nLast week, something very funny happened to the Gregg family. I am going to tell you about it as best I can.",
+      "text": "What?\n\nOh, all right, then.\n\nHe is eleven.\n\nLast week, something very funny happened to the Gregg family. I am going to tell you about it as best I can.",
+      "voice": "Leda",
+      "style": "A quick, surprised question; then concede lightly and let the invitation to listen brighten.",
+      "events": [
+        {
+          "at": 5,
+          "tag": "short pause"
+        }
+      ]
+    },
+    {
+      "id": "hunting",
+      "source_text": "Now the one thing that Mr Gregg and his two boys loved to do more than anything else was to go hunting. Every Saturday morning they would take their guns and go off into the woods to look for animals and birds to shoot. Even Philip, who was only eight years old, had a gun of his own.\n\nI can’t stand hunting. I just can’t stand it. It doesn’t seem right to me that men and boys should kill animals just for the fun they get out of it. So I used to try to stop Philip and William from doing it. Every time I went over to their farm I would do my best to talk them out of it, but they only laughed at me.\n\nI even said something about it once to Mr Gregg, but he just walked on past me as if I weren’t there.",
+      "text": "Now the one thing that Mr Gregg and his two boys loved to do more than anything else was to go hunting. Every Saturday morning they would take their guns and go off into the woods to look for animals and birds to shoot. Even Philip, who was only eight years old, had a gun of his own.\n\nI can’t stand hunting. I just can’t stand it. It doesn’t seem right to me that men and boys should kill animals just for the fun they get out of it. So I used to try to stop Philip and William from doing it. Every time I went over to their farm I would do my best to talk them out of it, but they only laughed at me.\n\nI even said something about it once to Mr Gregg, but he just walked on past me as if I weren’t there.",
+      "voice": "Leda",
+      "style": "Plainspoken conviction; frustration grows without turning into a lecture."
+    },
+    {
+      "id": "deer",
+      "source_text": "Then, one Saturday morning, I saw Philip and William coming out of the woods with their father, and they were carrying a lovely young deer.\n\nThis made me so cross that I started shouting at them.\n\nThe boys laughed and made faces at me, and Mr Gregg told me to go home and mind my own P’s and Q’s.",
+      "text": "Then, one Saturday morning, I saw Philip and William coming out of the woods with their father, and they were carrying a lovely young deer.\n\nThis made me so cross that I started shouting at them.\n\nThe boys laughed and made faces at me, and Mr Gregg told me to go home and mind my own P’s and Q’s.",
+      "voice": "Leda",
+      "style": "Start quietly; tighten the pace as the dismissal lands."
+    },
+    {
+      "id": "magic",
+      "source_text": "Well, that did it!\n\nI saw red.\n\nAnd before I was able to stop myself, I did something I never meant to do.\n\nI PUT THE MAGIC FINGER ON THEM ALL!",
+      "text": "Well, that did it!\n\nI saw red.\n\nAnd before I was able to stop myself, I did something I never meant to do.\n\nI PUT THE MAGIC FINGER ON THEM ALL!",
+      "voice": "Leda",
+      "style": "Accelerate through the short sentences; land the final declaration firmly, without screaming.",
+      "events": [
+        {
+          "at": 108,
+          "tag": "breath"
+        }
+      ]
+    },
+    {
+      "id": "aftermath",
+      "source_text": "Oh, dear! Oh, dear! I even put it on Mrs Gregg, who wasn’t there. I put it on the whole Gregg family.",
+      "text": "Oh, dear! Oh, dear! I even put it on Mrs Gregg, who wasn’t there. I put it on the whole Gregg family.",
+      "voice": "Leda",
+      "style": "The anger drains into dismay; the repeated opening comes quickly, then finish more quietly."
+    }
+  ]
+}

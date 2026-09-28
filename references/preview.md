@@ -4,6 +4,8 @@ Help the user understand the direction and hear available samples before decidin
 
 ## Reading copy
 
+See the worked [English narration](../examples/the-magic-finger/director.md) and [Chinese crowd scene](../examples/kong-yiji/director.md), both with English direction, HTML previews, and executable plans. For books, inspect actual chapter boundaries before naming an excerpt; a single EPUB spine item may contain an entire unnumbered story. State any selected excerpt's scope clearly.
+
 - Keep the source in the work directory. Create `director.md` and a directly openable `director.html`. List apparent typos or encoding problems separately and explain any provisional correction; do not silently rewrite.
 - Open with one short paragraph on the performance. Put the role table before the titled reading passage, then one or two necessary directing sentences per paragraph. Keep technical configuration in the JSON rather than burdening the reader with process language.
 - Design and display tone and Expression actions separately, following the [directing method](directing.md). In HTML, mark an action where it occurs, for example `〔inhale · breath〕`, and say the marker is not spoken. Do not hide every action in a paragraph preface. The role table may expand for performance details. If the script changes without a new recording, label the current audition as an older version.
