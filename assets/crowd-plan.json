@@ -1,0 +1,63 @@
+{
+  "title": "孔乙己 · 酒客七嘴八舌",
+  "clips": [
+    {
+      "id": "intro",
+      "source_text": "他们又故意的高声嚷道，",
+      "text": "他们又故意的高声嚷道，",
+      "voice": "Charon",
+      "style": "平静叙述，在引语前略收。"
+    },
+    {
+      "id": "lead",
+      "source_text": "你一定又偷了人家的东西了！",
+      "text": "你一定又偷了人家的东西了！",
+      "voice": "Fenrir",
+      "style": "高声起哄，挑衅地咬住“又偷了”，吐字清楚。"
+    },
+    {
+      "id": "guest-2",
+      "source_text": "你一定又偷了人家的东西了！",
+      "text": "你一定又偷了人家的东西了！",
+      "voice": "Iapetus",
+      "style": "急着附和，语速稍快，重音落在人家的东西。"
+    },
+    {
+      "id": "guest-3",
+      "source_text": "你一定又偷了人家的东西了！",
+      "text": "你一定又偷了人家的东西了！",
+      "voice": "Algieba",
+      "style": "带嘲弄的笑意，拖一点尾音，随口跟着起哄。"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "intro",
+      "layers": [
+        {
+          "clip": "intro"
+        }
+      ]
+    },
+    {
+      "id": "crowd",
+      "layers": [
+        {
+          "clip": "lead",
+          "start_ms": 0,
+          "gain_db": 0
+        },
+        {
+          "clip": "guest-2",
+          "start_ms": 180,
+          "gain_db": -7
+        },
+        {
+          "clip": "guest-3",
+          "start_ms": 420,
+          "gain_db": -9
+        }
+      ]
+    }
+  ]
+}

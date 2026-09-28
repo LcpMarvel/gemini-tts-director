@@ -1,0 +1,24 @@
+# Local projects, installed copies and credentials
+/works/
+/.agents/
+/.claude/
+/.codex/
+.ai_keys
+.env
+.env.*
+*.pem
+*.key
+/route*.json
+/audio/
+/skills-lock.json
+
+# Generated audio and runtime files
+*.wav
+*.pcm
+*.mp3
+*.timeline.json
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+.DS_Store
