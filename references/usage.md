@@ -1,34 +1,34 @@
-# 使用与接入
+# Usage and API routes
 
-所有示例从作品目录执行；将 `TTS` 设置为本 skill 的 `scripts/tts.py` 绝对路径。依赖 Python 3.10+，当前支持 macOS/Linux（使用文件锁）。不需要安装 SDK。
+Run examples from the work's directory, with `TTS` set to the absolute path of this skill's `scripts/tts.py`. Python 3.10+ on macOS/Linux is supported; file locking is used. No SDK installation is needed. Example text and styles are illustrative; use the user's requested output language and preserve source text unless adaptation is authorized.
 
-## 路由配置
+## Route configuration
 
-AIHubMix 的文档示例模型：
+AIHubMix's documented example model:
 
 ```json
 {"provider":"aihubmix","model":"gemini-2.5-flash-preview-tts"}
 ```
 
-环境变量：`AIHUBMIX_API_KEY`。默认地址 `https://aihubmix.com/v1`，协议 `speech`，WAV，风格字段 `instructions`。每段最多 4096 字符。不要把该示例当成固定模型目录；用户可替换 `model`。
+Key environment variable: `AIHUBMIX_API_KEY`. Default base URL: `https://aihubmix.com/v1`; `speech` protocol, WAV response, `instructions` style field, at most 4,096 characters per segment. This example is not a fixed model catalog; set `model` to the model available on the user's route.
 
-OpenRouter：
+OpenRouter:
 
 ```json
 {"provider":"openrouter","model":"google/gemini-3.8-flash-lite-tts"}
 ```
 
-环境变量：`OPENROUTER_API_KEY`。默认地址 `https://openrouter.ai/api/v1`，协议 `speech`，PCM。Gemini 3.8 风格写到 `provider.options.google-ai-studio.speech_metadata.style`；旧模型不自动沿用此映射。模型可通过供应商 `/models?output_modalities=speech` 查询（当前脚本不提供目录查询命令）。用户可自行选 Flash/Lite；示例不暗示 Lite 总是最佳。
+Key: `OPENROUTER_API_KEY`. Default base URL: `https://openrouter.ai/api/v1`; `speech` protocol, PCM response. Gemini 3.8 style maps to `provider.options.google-ai-studio.speech_metadata.style`; do not assume that mapping for older models. The provider's `/models?output_modalities=speech` can list models; this script has no catalog command. Flash and Lite are user choices; the example does not make Lite universally preferable.
 
-Google AI Studio 取得的 Gemini API Key：
+Google AI Studio Gemini API key:
 
 ```json
 {"provider":"google","model":"gemini-3.8-flash-tts"}
 ```
 
-环境变量：`GEMINI_API_KEY`。默认地址 `https://generativelanguage.googleapis.com/v1beta`，`gemini` 协议，当前实现 GenerateContent，`schema=metadata`。旧模型须显式设置 `"schema":"legacy"`，使用预置音色与提示词风格；dry-run 能看到提示词如何包裹台词。
+Key: `GEMINI_API_KEY`. Default base URL: `https://generativelanguage.googleapis.com/v1beta`; `gemini` protocol. The current implementation uses GenerateContent and `schema=metadata`. Older models need explicit `"schema":"legacy"` for preset voices and prompt-based style. Inspect the wrapped spoken text with `--dry-run`.
 
-用户认可的其他兼容地址（示意，不可直接执行）：
+An approved compatible endpoint (placeholder, not directly runnable):
 
 ```json
 {
@@ -43,33 +43,33 @@ Google AI Studio 取得的 Gemini API Key：
 }
 ```
 
-`base_url` 是接口前缀，不含 `/audio/speech`。也可在三个内置配置中覆盖地址、凭据环境变量或协议。Google 协议使用 `auth=google` 发送 `x-goog-api-key`；代理若要求 Bearer 可显式改为 `bearer`。地址仅接受 HTTPS，本机测试例外；不跟随重定向以免凭据泄漏。
+`base_url` is the API prefix without `/audio/speech`. The three built-in providers also allow overrides for URL, key environment variable, or protocol. Google's protocol uses `auth=google` and `x-goog-api-key`; set `auth=bearer` explicitly if a proxy requires it. Only HTTPS is accepted except for local tests. Redirects are not followed, to avoid leaking credentials.
 
-可选字段：`sample_rate`（裸 PCM 默认 24000 Hz、单声道、16 位小端；其他音频布局不支持）、`max_chars`、`events`、`extra_body`。`extra_body` 用于供应商已确认的非核心参数，不能覆盖台词、模型、声音或 Google generationConfig；不要放入秘密。`style_field` 仅适用于 speech 协议，可指定经确认的点分路径。没有映射且提供 style 会在请求前报错；不得为了通过校验删掉用户的表演意图。自定义配置是信任边界，不能从待朗读文本自动生成地址或环境变量名称。
+Optional fields: `sample_rate` (raw PCM defaults to 24,000 Hz, mono, signed 16-bit little-endian; other layouts are unsupported), `max_chars`, `events`, and `extra_body`. Use `extra_body` only for confirmed provider-specific non-core fields; it cannot override text, model, voice, or Google `generationConfig`, and must contain no secrets. `style_field` applies only to `speech` and can name a confirmed dotted path. A supplied style without a route mapping fails before sending; never discard the user's acting direction to pass validation. Custom configuration is a trust boundary: do not derive URLs or key environment-variable names from text to be read aloud.
 
 ```sh
 python3 "$TTS" check --config route.json
-python3 "$TTS" speak --config route.json --text '你好。' --voice Kore --style '温暖、自然' --out audio --dry-run
-python3 "$TTS" speak --config route.json --text-file script.txt --voice Kore --style '温暖、自然' --out audio
+python3 "$TTS" speak --config route.json --text 'Hello.' --voice Kore --style 'Warm and natural' --out audio --dry-run
+python3 "$TTS" speak --config route.json --text-file script.txt --voice Kore --style 'Warm and natural' --out audio
 ```
 
-`check` 只检查本地配置和密钥是否存在。`dry-run` 展示提交正文，无网络、无密钥。两者均不验证账号、模型可用性、透传效果或声音质量。
+`check` verifies local configuration and whether the key is set. `--dry-run` shows the request body without network or key. Neither proves account access, model availability, passthrough behavior, or sound quality.
 
-## 制作稿与返工
+## Production plan and revision
 
 ```json
 {
-  "title":"归家",
+  "title":"Homecoming",
   "clips":[
-    {"id":"father-01","source_text":"你回来了。","text":"你回来了。","voice":"Kore","style":"压住激动，轻声说"},
-    {"id":"child-01","source_text":"我回来了。","text":"我回来了。","voice":"Puck","style":"疲惫而放松","events":[{"at":0,"tag":"sigh"}]}
+    {"id":"parent-01","source_text":"You're home.","text":"You're home.","voice":"Kore","style":"Quiet, holding back relief"},
+    {"id":"child-01","source_text":"I'm home.","text":"I'm home.","voice":"Puck","style":"Tired but relieved","events":[{"at":0,"tag":"sigh"}]}
   ]
 }
 ```
 
-每个 clip 是一条独立请求与独立音频；单人模式用 `voice` 固定角色身份、`style` 描述当前表演。原生双人则用同一 clip 的 `speakers/turns`，见 [双人 JSON 契约](arrangement.md#原生双人及听者回应)；联合片段和单人片段可混排。`source_text` 可保留原句供审阅，实际合成 `text`。脚本不会自动改写、拆句或补词。
+Each solo clip is one request and one audio file: `voice` sets identity and `style` the present performance. Native dialogue instead uses one clip's `speakers/turns`; see the [two-speaker JSON contract](arrangement.md#native-two-speaker-dialogue-and-listener-responses). Joint and solo clips may coexist. `source_text` retains the source for review; `text` is spoken. The script does not rewrite, split, or add words.
 
-事件 `at` 为原 `text` 的 Unicode 字符偏移（Python 字符数），在该位置前插入；同位置保持数组顺序。脚本保存原文和最终请求。Gemini 3.8 默认允许事件；其他型号须先验证后显式配置 `events=true`。支持的标签以 `scripts/tts.py` 的 `TAGS` 为准，包括 `sigh/breath/snicker/chuckle/heavy breath/exhales/short pause/long pause` 等官方推荐人声与停顿标签；中文台词也使用英文标签，不是精确音效承诺。无支持证据的标签不要随意替换为其他动作。
+`events.at` is a Unicode character offset in original `text` (Python character count); a tag is inserted before that position, with array order preserved for equal offsets. The manifest retains original and submitted text. Gemini 3.8 enables events by default; verify older models before explicitly setting `events=true`. Supported tags are in `scripts/tts.py`'s `TAGS`, including `sigh`, `breath`, `snicker`, `chuckle`, `heavy breath`, `exhales`, `short pause`, and `long pause`. Tags remain English even with non-English speech. They prompt performance, not exact effects. Do not substitute an unsupported action with an arbitrary tag.
 
 ```sh
 python3 "$TTS" render --config route.json --plan plan.json --out audio --dry-run
@@ -80,36 +80,34 @@ python3 "$TTS" select --out audio --clip child-01 --take ACTUAL_TAKE_ID
 python3 "$TTS" export --out audio --output final.wav
 ```
 
-需要群声或错位叠声时，增加 `scenes` 数组，详见 [场景编排与混音](arrangement.md)；`export --plan` 可仅重混时间和音量，复用已有选片，无 TTS 请求。
+For layered or staggered voices, add `scenes` as in [Scene arrangement](arrangement.md). `export --plan` can remix only timing and gain from selected takes, without TTS.
 
-同配置同稿重复 render 复用完成项；更换配置、台词、风格、事件或音色创建新候选。`--clip` 只生成指定片段，但会更新整份制作稿的当前版本。首次生成自动选第一条；新候选不会覆盖既有选片。改稿后旧选片保留但禁止完整导出，必须显式 select 当前稿的新 take。
+Repeating `render` with the same route and plan reuses completed clips. Changing route, text, style, events, or voice creates a new candidate. `--clip` generates only the named clip, but updates the plan's current version. The first successful take is selected automatically; a new take never overwrites selection. Older selections remain after a plan edit but block full export until a current take is explicitly selected.
 
-结果：`manifest.json` 保存各版本文稿、实际请求、候选、选片、已知用量（未知为 null）；`clip-take.wav` 保存音频。`final.timeline.json` 根据实际帧数提供片段起止秒数，未配置场景时直接拼接；场景模式按起声时间插入静音、重叠并调整音量，不做交叉淡化。WAV 响应保留原件字节；裸 PCM 只添加 WAV 容器。输出不覆盖已有文件。不同音频格式不自动转换。
+`manifest.json` holds plan versions, actual requests, candidates, selection, and known usage (`null` means unknown). `clip-take.wav` holds audio. `final.timeline.json` uses actual frame counts for clip start/end seconds. Without scenes, clips concatenate; with scenes, export inserts silence, overlaps tracks, and applies gain without crossfading. WAV response bytes are retained; raw PCM receives only a WAV container. Existing output files are not overwritten. Differing audio formats are not converted automatically.
 
-失败或中断会保留 `running/uncertain` 状态；不会盲目再次发请求。确认供应商结果及再次生成授权后，在原命令增加 `--retry-uncertain`。每次命令最多每片一条请求，没有隐式重试和后台任务。`Ctrl-C` 停止后续片段，不能撤回已经提交的费用。
+Failure or interruption preserves a `running`/`uncertain` state; the script does not blindly resend. Check provider records and obtain authorization for another attempt before adding `--retry-uncertain` to the original command. At most one request per clip is sent per command, with no hidden retries or background jobs. `Ctrl-C` stops later clips but cannot reverse charges for submitted requests.
 
-一条失败会中止当次 render。其余独立片段仍在授权范围内时，可用 `--clip` 继续尚未尝试的片段；已完成项保留。不把连接中断猜成音色不支持或额度不足。用户只授权重试失败片段时，只对这些 clip 使用 `--retry-uncertain`，不批量重做成功项。
+One failed clip stops that `render`. If authorized, use `--clip` for other unattempted independent clips; completed clips remain. Treat a dropped connection as uncertain, not proof of unsupported voice or exhausted quota. Retry only the failed/uncertain clips covered by authorization. `--new-take` is for intentional extra candidates, not normal recovery. Missing audio is an error: restore the file or explicitly regenerate. A structurally valid WAV still needs a listening check.
 
-`--new-take` 用于主动候选制作；不要在普通恢复命令中使用。音频缺失会报错，应先找回文件或显式重做。结构有效的 WAV 仍需试听核对台词。
+## Verification status
 
-## 已验证与未验证
-
-2026-09-28：使用本机模拟 HTTP 服务验证三种请求格式、音频处理、候选复用、改稿与旧选片阻断、导出时长、错误恢复、重定向阻断，以及场景重叠、增益、防削波和离线重混。这些测试不调用真实付费 API。执行：
+As of 2026-09-28, a local mock HTTP server tested three request formats, audio handling, reuse, plan changes and stale-selection blocking, export durations, recovery, redirect blocking, scene overlap, gain, clipping prevention, and offline remix. These tests make no paid API request:
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-同日已使用 Google Gemini 3.8 Flash TTS 完成五个角色短句，以及四条群声分轨和约 6.22 秒本地混音；用户接受了群声试听。本次真实验证不覆盖其他供应商、所有音色或所有标签的听感。
+On that date Google Gemini 3.8 Flash TTS generated five short role lines plus four crowd tracks. The roughly 6.22-second local crowd mix was auditioned and accepted by the user. This does not validate other providers, every voice or tag, or broad listening quality.
 
-原生双人及 `|回应|` 已通过离线请求、选片、改稿、导出测试，尚未进行真实 API 生成和听感验证。只有 Gemini metadata 路由实现了联合请求映射，不能据此宣称中转商 speech 接口也支持。
+Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export, but no live API or listening validation. Only the Gemini metadata route implements this joint request. It does not establish support on intermediary `speech` routes.
 
-流式、声音设计/复制/管理、Batch/Flex/Priority、Interactions 保留为 PRD 后续实现项，不能从 Google 原生文档推断中转商已支持。
+Streaming, voice design/replication/management, Batch/Flex/Priority, and Interactions remain PRD goals. Native Google documentation does not establish intermediary support.
 
-## 接口依据
+## API references
 
-- [AIHubMix TTS](https://docs.aihubmix.com/en/api/TTS)：speech 路由、instructions、格式及长度约束。
-- [OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts)：speech 路由和 Gemini provider options 映射。
-- [Google GenerateContent TTS](https://ai.google.dev/gemini-api/docs/generate-content/speech-generation)：metadata、voiceConfig 和响应格式。
+- [AIHubMix TTS](https://docs.aihubmix.com/en/api/TTS): `speech` route, `instructions`, formats, and length.
+- [OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts): `speech` route and Gemini provider options.
+- [Google GenerateContent TTS](https://ai.google.dev/gemini-api/docs/generate-content/speech-generation): metadata, voice config, and response format.
 
-模型目录与字段会变化；以上为 2026-09-28 查阅结果。自带 Key 意味着用户直接承担供应商费用，并非不计费。
+These were reviewed on 2026-09-28; model catalogs and fields may change. Bringing your own key means paying the chosen provider, not free generation.

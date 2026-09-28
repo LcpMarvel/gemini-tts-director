@@ -1,4 +1,4 @@
 interface:
   display_name: "Gemini TTS Director"
-  short_description: "用自己的 AI 导演 Gemini 配音，支持多接入商、情绪表演与局部返工"
+  short_description: "Direct Gemini speech with your own AI, chosen provider, expressive delivery, and focused revisions"
   default_prompt: "Use $gemini-tts-director to direct and render expressive Gemini speech through my chosen API provider."

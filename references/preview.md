@@ -1,71 +1,66 @@
-# 导演稿与试听
+# Reading copy, voice samples, and optional auditions
 
-先让用户看得懂、听得见，再决定是否生成。用户已经明确授权的生成任务直接按其范围执行，不强制补走预览流程。
+Help the user understand the direction and hear available samples before deciding on generation. If the user has already authorized generation, proceed within that scope without forcing a preview stage. Write the reading copy in the user's requested language; preserve original literature unless translation or adaptation is authorized.
 
-## 阅读稿
+## Reading copy
 
-- 在作品目录保留原始来稿，生成 `director.md` 和可直接打开的 `director.html`。原文疑似错字、乱码单独列在末尾，暂改处说明，不默默改写。
-- 用简短自然的中文：开头一段整体演绎方向；题名朗读段之前放角色表；正文每段一两句必要的导演提示。少用术语、流程说明和重复总结，技术配置留在制作稿里。
-- 语气与 Expression 动作按 [导演方法](directing.md) 分别设计并显示。HTML 正文在动作发生处使用醒目的行内标记，如“〔吸气 · breath〕”，并说明标记不朗读；不要只把动作藏在段首说明里。角色表可折叠展示具体表演设计；改稿未重录时注明现有试听属于旧版，避免用户误以为已听到新表演。
-- 角色表列角色、语气、候选音色和试听。只放本作品需要的少量候选，不铺开完整音色库；单人朗读与多角色方案须标清，候选音色不等于已应用。
-- HTML 用原生 `<audio controls preload="none">` 播放官方现成样本，标注可访问的音色名称；一次只播放一个，切换筛选时停止移除的播放器。Markdown 提供对应试听链接。
-- 更多音色放独立的 `voices.html`，支持搜索、语言和声线筛选，默认只看有样本的音色，每次显示约十条。没有样本的条目显示“暂无样本”，不伪装成可播放。
+- Keep the source in the work directory. Create `director.md` and a directly openable `director.html`. List apparent typos or encoding problems separately and explain any provisional correction; do not silently rewrite.
+- Open with one short paragraph on the performance. Put the role table before the titled reading passage, then one or two necessary directing sentences per paragraph. Keep technical configuration in the JSON rather than burdening the reader with process language.
+- Design and display tone and Expression actions separately, following the [directing method](directing.md). In HTML, mark an action where it occurs, for example `〔inhale · breath〕`, and say the marker is not spoken. Do not hide every action in a paragraph preface. The role table may expand for performance details. If the script changes without a new recording, label the current audition as an older version.
+- Show each role's tone, candidate voice, and audition. Include only a few candidates relevant to this work. Clearly identify solo versus multi-role plans; a candidate is not necessarily applied to the full work.
+- Use native `<audio controls preload="none">` for available official samples and name the voice. Play one at a time, and stop players removed by filtering. Link the same samples in Markdown.
+- Put the wider voice catalog in a separate `voices.html`, searchable and filterable by language and voice characteristics. Default to voices with samples and show about ten results at once. Label unavailable samples “No sample available”; never render them as playable.
 
-## 文稿、选择和录音保持一致
+## Keep text, choices, and recordings aligned
 
-制作 JSON 是执行依据；HTML/Markdown 是它的阅读视图，manifest 中的实际请求与 take 是已录声音的依据。编辑语气、动作或群声时先改对应 JSON，再更新阅读稿；页面上的标记需对应真实 events 或 scenes，不能只有装饰而不参与生成。
+Production JSON controls execution; HTML/Markdown are reading views; the manifest records actual requests and takes. Edit JSON before updating the reading copy's tone, actions, or crowd arrangement. Every displayed action or scene marker must correspond to a real `events` or `scenes` entry, rather than decorative text.
 
-浏览器中换声只是候选选择。下一次用户要求制作时，读取所选角色与准确 voice ID，更新对应制作 JSON 后再 dry-run；不要凭页面显示名推测 ID。单人主稿、分角色试音和群声片段可分开保存，页面说明它们各自的用途，不把局部试音选择自动套到整篇。
+Changing a voice in the browser chooses a candidate. When the user later asks to produce audio, read the selected role and exact voice ID, update the right JSON, then dry-run. Never infer an ID from its display name. A solo main reading, role auditions, and crowd tracks may have separate plans; label each use and do not silently apply a role audition's choice to the full work.
 
-每次生成或重混完成后，用 manifest 的已完成选片和实际导出结果更新播放器、录制音色及版本。改稿但未重录的片段继续标“旧版试听”；只有确实生成的新片段才更新状态，不对整页一概标新或标旧。部分成功时先交付成功项，其余按真实状态显示，不能放指向不存在文件的播放器。
+After generation or remix, update players, recorded voices, and version labels from completed selected takes and actual exports. A revised but unrecorded passage keeps its “Older audition” label. On partial success, deliver real completed items and mark the rest accurately; never link a nonexistent file. Before delivery, check explained source edits, event positions, scene references, and links. Format and duration checks do not establish artistic quality. Record user listening feedback as that user's judgment, not a general guarantee.
 
-交付前做一次对应关系检查：正文与原文的已说明改动一致、事件位置正确、场景引用存在、试听链接指向实际文件。检查音频格式与时长不等于听感通过；反馈是用户听后的主观判断时按原意记录，不扩大为通用质量保证。
+## Voice catalog and official samples
 
-## 音色来源与样本
+Do not turn one user's preference, a one-off API failure, or the example voices into a universal restriction. Users can browse and choose the wider library. Before generating, check whether the selected route supports the exact voice. An official sample's availability does not prove generation works on this route. Let the user choose another voice or route when needed.
 
-不把某位用户的偏好、某次接口故障或示例音色范围固化为通用选声限制。用户可自由查看和选择音色；实际生成前再核对所用接口是否支持所选 voice，遇到不支持时如实说明，由用户决定换声或接入方式。官方样本可播放不等于当前接口一定能生成。
+Use the [Google AI Studio voice picker](https://aistudio.google.com/generate-speech) for discovery. Do not substitute old Google Cloud or Chirp samples for Gemini samples.
 
-以 [Google AI Studio 音色库](https://aistudio.google.com/generate-speech) 为发现入口，不把旧版 Google Cloud 音色表或 Chirp 样本替代为 Gemini 样本。
+The [sample URL catalog](../assets/voice-samples.json) records 70 official static samples verified reachable on 2026-09-28: 30 original voices and 40 additional named voices. This is a snapshot, not a voice-count ceiling. It needs no key or TTS request. Preserve URL case:
 
-[样本地址表](../assets/voice-samples.json) 保存 2026-09-28 验证可用的 70 个官方静态样本（30 个原有音色、40 个新增命名音色），这是快照，不是音色总量上限。无需 Key，也不调用 TTS。保留 URL 中的大小写：
+- Original voice: `https://www.gstatic.com/aistudio/voices/samples/Charon.wav`
+- Additional named voice: `https://www.gstatic.com/aistudio/voices/samples/daikon/en-us-bodi.wav`
 
-- 原有音色：`https://www.gstatic.com/aistudio/voices/samples/Charon.wav`
-- 新增命名音色：`https://www.gstatic.com/aistudio/voices/samples/daikon/en-us-bodi.wav`
+Reuse the catalog first. To add a voice, observe its actual resource URL through AI Studio's **Play voice sample**, then verify that the discovered target returns audio. Do not click a preview control that generates content. Never assume every extended voice has a `daikon/{id}.wav` file; show “No sample available” when absent rather than generating one without authorization.
 
-优先复用地址表。新增音色先在 AI Studio 的 **Play voice sample** 入口观察真实资源地址，再按发现的规则检查目标文件是否返回音频。不要点击会生成内容的预览入口。不能将 `daikon/{id}.wav` 推断为所有扩展音色均有样本；失败时显示暂无，不能偷偷生成来补齐。
+For a truly complete live catalog, an authorized Gemini key can call `GET https://generativelanguage.googleapis.com/v1beta/voices?type=prebuilt&page_size=1000`, following each next-page token with `page_token`. Preserve the real voice ID, source, and retrieval date. Catalog lookup authorization is distinct from generation authorization. Reuse an existing catalog when sufficient. The current script has no voice catalog command; do not invent one.
 
-确实需要完整目录时，可用用户授权的 Gemini Key 读取 `GET https://generativelanguage.googleapis.com/v1beta/voices?type=prebuilt&page_size=1000`，沿响应的下一页 token 以 `page_token` 翻页。保留原始 voice ID、来源和获取日期，不把显示名当 ID。查询目录的授权不代表生成授权；已有目录可直接复用。当前执行脚本没有目录查询命令，不要编造 CLI 参数。
+Send a key only in the server-side `x-goog-api-key` header, never HTML, URLs, CLI arguments, or catalog snapshots. If the user points to a key file, read only the needed key, without sourcing or printing the file. The voice catalog omitting a preset sample URL does not imply no static sample exists. A voice's language metadata does not prove the model can speak only those languages.
 
-Key 仅在服务端请求头 `x-goog-api-key` 中使用，不放入 HTML、URL、命令参数或目录快照。用户指定密钥文件时只读取所需键，不将整个文件 source 或输出。目录不返回预置样本 URL 不代表没有静态样本；元数据的语言标签也不等于模型只能说该语言。
+## Optional role-specific auditions
 
-## 按角色试音，可选精调
+This is optional fine tuning, not a prerequisite to production. The user can accept the director's choices, listen only to official samples, or switch voices without extra TTS calls.
 
-这是给希望细选声音的用户的可选步骤，不是继续制作的必经流程。用户可以直接接受导演选声，也可以只试听官方样本或换音色，不生成额外试音。
+For each selected speaking role, choose one distinctive original line that conveys character or relationship and generate one short audition in that role's own candidate voice. Choose narration for a narrator; do not invent a line for a silent role. Do not have multiple roles read the same line by default; same-line comparisons are useful when the user explicitly compares candidates for one role.
 
-导演已经为角色选好音色时，试音以角色为单位：给每个已选角色从原文找一句有辨识度、符合人物关系或关键语气的代表台词，各用自己的候选音色生成一条。旁白选叙述句；没有独立台词的角色不硬编。不要默认让多个角色音色读同一句，跨音色比较同一句只用于用户明确要比较某个角色的候选时。
+Show the roles, voice IDs, exact source lines, acting direction, and total number of requests first, explaining provider/model charges. Generate directly when existing authorization covers those roles and counts; otherwise, present the specific proposal for the user's choice. Do not invent an unverified price or promise free use.
 
-先展示角色、音色、原句、表演方向和总生成数量，说明会产生 TTS 费用，按所选接入商和模型计费。已有授权覆盖这些角色和数量时直接生成；没有授权时提出具体方案等待选择，不默认开始。价格未核实时不编造金额，不承诺免费。
+For example, a *Kong Yiji* audition can pair distinct roles with their own lines. The quotations below are **original source lines in Chinese**, not English UI copy or mandatory voice choices:
 
-例如《孔乙己》的五个候选：
+| Role | Original source line (Chinese) |
+| --- | --- |
+| Narrator | 我到现在终于没有见——大约孔乙己的确死了。 |
+| Kong Yiji | 窃书不能算偷……窃书！……读书人的事，能算偷么？ |
 
-| 角色 | 音色 | 代表台词 |
-| --- | --- | --- |
-| 成年伙计旁白 | Charon | 我到现在终于没有见——大约孔乙己的确死了。 |
-| 孔乙己 | Algenib | 窃书不能算偷……窃书！……读书人的事，能算偷么？ |
-| 少年伙计 | Puck | 谁要你教，不是草头底下一个来回的回字么？ |
-| 掌柜 | Orus | 孔乙己还欠十九个钱呢！ |
-| 酒客 | Fenrir | 你怎的连半个秀才也捞不到呢？ |
+Use the exact passage supplied by the user. The number of roles depends on the work; five is not a preset.
 
-可以提醒：“要不要让这五个角色各读一句自己的代表台词？共五条，会产生 TTS 费用。也可以直接接受选声，或先换掉不喜欢的音色。”角色和数量随作品变化，不把五个当固定配置。
+After authorization, verify the route and model using [Usage and routes](usage.md). Keep auditions in a separate plan/output directory, one clip per role, preserving the full-work plan. In the role table, distinguish user-line auditions from official voice samples. Report actual files and usage. Without listening ability, do not claim to have heard or judged them.
 
-确认后按 [使用与接入](usage.md) 核对实际路由与模型。试音用独立制作稿和输出目录，每个角色一个 clip，保留正文制作稿。在角色表中提供原句与生成音频，把它和官方样本区分开。仅报告真实文件与用量；没有审听能力，不声称已经听过或替用户判断听感。
+### Change a voice and optionally re-audition
 
-### 换音色与重新试音
+- Offer a per-role voice selector leading to the separate searchable, playable catalog. Save the exact new voice ID for that role, leaving other roles intact. If it has not been applied to the full-work plan, identify it as a proposal only.
+- **Choosing a voice does not call TTS.** The user can stop there or request only this role's new audition. A selection click cannot trigger a paid request.
+- Retain old auditions with their true recorded voice labels. Mark a newly chosen, ungenerated voice “Not auditioned”; its official sample may still play.
+- For a re-audition, keep the representative line and direction, change only `voice`, make one new take for that role, and keep the old candidate for comparison. Do not repeat approval within an existing authorization scope.
+- Audition authorization does not authorize the whole work or unlimited candidates. Static pages store no key and do not secretly call a generation API. Browser-local selection should state its scope; the agent reads it and updates the plan only when the user requests production.
 
-- 每个角色提供“换音色”入口，进入可搜索、可试听的独立音色库。选择后更新该角色的 voice ID，保留其他角色；没有实际应用到正文制作稿时明确只是选声方案。
-- **选择音色本身不调用 TTS。** 保存选择后，用户可以就此结束，也可以明确要求只给这个角色重新试音；不能用选择动作顺带触发付费请求。
-- 换声后保留旧试音及其真实音色标签，不能把旧录音标成新声音。尚未生成的新声音标注“未试音”，官方样本仍可试听。
-- 要重新试音时沿用该角色的代表台词与表演方向，只改 voice，只生成该角色的一条；保留旧候选供比较，已授权范围内不重复确认。
-- 试音授权不扩展为全文生成或无限追加候选。静态页面不存密钥、不暗接生成 API；选声可保存在当前浏览器并明确范围，由 Agent 在用户请求后读取选择、更新制作稿和执行 TTS。
-
-原生双人段落在阅读稿逐轮标出说话人及听者回应，例如“乙插话：嗯，我听着”，并说明整段联合生成。不要把 `|回应|` 当作当前主说话人的台词，也不要给同一联合录音伪造两套独立试听或轮次时码。文本类型与制作方式的简短判断放在稿件开头，局部混用标在相应段落。
+For native two-speaker passages, show speakers and listener responses turn by turn and explain that the passage is jointly generated. `|listener response|` belongs to the other speaker, not the primary speaker. Do not fabricate two separate players or per-turn timestamps for one joint WAV. Explain mode choice briefly at the opening and mark local exceptions beside their passages.

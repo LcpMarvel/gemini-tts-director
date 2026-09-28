@@ -1,338 +1,161 @@
-# Gemini TTS Director 产品需求文档
+# Gemini TTS Director — Product Requirements
 
-版本：0.3 · 多接入商 Skill / 核心实现
+Version 0.3 · Multi-provider skill and core implementation · 2026-09-28
 
-日期：2026-09-28
+Project and skill ID: `gemini-tts-director`.
 
-项目与 skill 名称：`gemini-tts-director`
+**Delivered now:** agent instructions, a Python standard-library execution script, and offline integration tests. Five short role lines were generated with Google Gemini 3.8 Flash TTS. Four crowd tracks using the earlier Chinese-direction plan were generated and mixed locally into roughly 6.22 seconds of audio, which the user auditioned and accepted. The translated English styles in the current example have not been regenerated. There has been no systematic listening evaluation. Scene mixing passed local tests.
 
-当前交付：skill 指引、Python 标准库执行脚本及离线集成测试；已安装到本项目，已完成五个角色的短句 TTS；未作系统听感评测。JSON 场景混音通过本地测试；群声示例已实际生成四条分轨，导出约 6.22 秒混音，用户试听后接受。
+**Implementation status:** AIHubMix/OpenRouter `speech` and Google GenerateContent routes, custom endpoints, solo and separate per-turn clips, free-form style and events, candidate reuse/selection/revision, recovery, JSON scene offsets/gain, WAV export, and track timing exist. Native two-speaker Gemini metadata clips with `|listener response|` pass offline tests but have no live API or listening validation. Streaming, Interactions, voice design/replication/management, Batch, and service tiers are future goals. `SKILL.md` and [usage](references/usage.md) define the current executable contract; requirements below do not imply implementation.
 
-> 实现状态：已落地 AIHubMix / OpenRouter speech 协议与 Google GenerateContent 接入、自定义地址、单人及逐轮多角色、风格与事件、候选/选片/局部重做、恢复、JSON 场景错位叠声/音量调整、WAV 导出与分轨时码。下文“完整版本”仍是产品目标；Gemini metadata 原生双人及 `|回应|` 已实现并通过离线测试，真实 API 和听感待验证；流式、Interactions、Voices 管理/设计/复制、Batch 与服务层级尚待实现。具体执行契约以 `SKILL.md` 和 `references/usage.md` 为准。
+## 1. Product and scope
 
-## 1. 名称与产品定义
+Gemini TTS Director helps the **user's own AI agent** direct expressive Gemini speech. The host agent understands the text, plans performance, selects voices/takes, calls the script, and handles feedback. Gemini synthesizes speech. No second planning or review model is hidden inside this product. Switching host agents must not require replacing the production plan.
 
-正式名称为 **Gemini TTS Director**，目录及 skill 标识为 **`gemini-tts-director`**。`gemini-tts-director-skill` 没有语法错误，但末尾的 `skill` 重复描述了交付类型，可以省略。
+The user chooses the AI environment and Gemini API route: Google AI Studio/Gemini API, AIHubMix, OpenRouter, or a compatible approved endpoint. The script handles deterministic validation, requests, audio, and persistent assets. Direction remains open to the agent and user, not a fixed emotion taxonomy. User-facing language follows the user's request; an English repository does not mandate English spoken text or reading copies.
 
-这是一个**指导用户自己的 AI Agent 使用 Gemini TTS 完成声音制作的 skill，附带可靠执行所需的脚本**。用户继续在自己选择的 Claude、Codex 或其他具备相应能力的 Agent 环境中交流：由宿主 Agent 理解文本、规划表演、调用脚本并回应用户；Gemini 负责生成声音。
+The full product vision includes solo performance, styles and vocal events, preset two-speaker dialogue and listener responses, separate multi-role production, voice discovery/design/consensual replication, streaming, longer works, take selection, focused revisions, recovery/export, and provider modes such as Batch/Flex/Priority once verified. The current deliverable does not require a standalone CLI product, MCP server, web service, daemon, team system, billing platform, or hosted job manager. It also does not provide calls, transcription, music/environmental sound generation, or publication.
 
-名称中的 Director 指 skill 帮助宿主 Agent 承担导演工作，不代表产品内部另有一个导演模型。
+A capable host can read the instructions, access files, run scripts, and reach the chosen API. “Works with an AI agent” alone does not establish that any web chat has those abilities. A host without native skill loading can use the same files if it has execution access.
 
-本文件定义以 skill 交付的声音制作工具，并保留官方能力调研作为设计依据。
+For one line, the agent can read the short guide, use the user's route and chosen voice, return a WAV and concise result, and stop. For a story, it can plan roles, audition actual lines, revise one affected clip after feedback, select a take, and export. These are examples, not mandatory stages. Reuse choices the user has already made.
 
-### 1.1 核心分工
+## 2. Package and assets
 
-| 层次 | 负责的工作 | 不承担的工作 |
+| Component | Role |
+| --- | --- |
+| `SKILL.md` | Short trigger, route to task-specific references, and key boundaries. |
+| `references/` | Acting, voice preview, special modes, executable inputs, and recovery; load only what is needed. |
+| `scripts/` | Validated deterministic operations; no embedded directing or listening LLM. |
+| Host metadata | Discovery/display where a host needs it; no dependence on one host model. |
+
+Install the skill separately from user work. Store source, voice bindings, direction, requests, takes, and current selection in the user's output directory. An agent in a new session should be able to inspect and continue without relying on chat memory. Updating the skill must not overwrite work. Keep credentials in secure local environment/configuration, separate from host-AI credentials. The tool does not collect subscription fees; report request count and available usage to help avoid accidental repeated synthesis.
+
+## 3. Required behavior
+
+These are product requirements, with stable IDs for implementation tracking. Some are future scope; the opening status and executable guides identify what exists today.
+
+### Host, authorization, and fidelity
+
+- **F01 — Trigger appropriately.** Use the skill for Gemini speech production, acting, voice choice, audition/revision, and audio delivery. Discussion alone starts no generation; do not redirect unrelated speech, calls, or music into Gemini TTS.
+- **F02 — Agent directs.** Speaker detection, segmentation, emotion, voice, and take choices belong to the user or host agent. The script calls no hidden text model.
+- **F03 — Load on demand.** A simple line needs no full character dossier or director approval sequence. Reuse the user's existing text, voice, and plan.
+- **F04 — Preserve authorization.** Reuse granted scope for voice choices, counts, generation, and revisions without per-line reconfirmation. Reading this skill does not authorize unlimited calls, uploading recordings, remote deletion, or publication. Pause only actions lacking authorization.
+- **F05 — Make capability states visible.** Distinguish documented, locally implemented, and verified on the current account. A local check produces no speech; unknown availability is not support, and one rate-limit response is not permanent unavailability.
+- **F06 — Separate source and spoken text.** Accept direct text, UTF-8 TXT/Markdown, or agent-prepared plans. Preserve source and expose the text actually submitted. Do not read role labels, scene notes, or direction as lines. Adaptation, translation, additions, and removals need user intent and visible differences.
+- **F07 — Keep acting open and restrained.** Use short natural-language turn styles or none. Voice sets stable identity; style sets current performance. Start with a baseline when helpful and avoid automatic emotion/sigh insertion.
+- **F08 — Place vocal actions.** Support add/move/remove of positioned breaths, sighs, laughter, and pauses with speaker and submitted form visible. Sustained whispering or fatigue belongs in style. Unknown tags are experimental or rejected, never silently discarded.
+- **F09 — Resolve control syntax and added words.** Literal angle brackets and bars may conflict with event/backchannel syntax. “Um,” “oh,” and listener responses are spoken edits, not invisible naturalness improvements. Keep the actual submission inspectable.
+- **F10 — Be honest about pronunciation.** Record names, ambiguous words, and mixed-language notes. An authorized spoken alias may be tried with source mapping. Do not claim reliable SSML/IPA, numeric pace/pitch, exact pause timing, or event-only audio without validation.
+- **F11 — Segment for performance.** Split at scenes, turns, or dramatic changes and enforce actual route limits with a clear error location. No arbitrary fixed 300-character chunks or silent deletion. Reuse compatible results when resegmenting.
+
+### Voices and synthesis
+
+- **F12 — Discover and compare voices.** Let users query/filter current visible voices, inspect details, and use exact IDs. Audition with representative real lines, recording route/model/voice; an unavailable sample is not a playable file. Auditions count as TTS calls. Do not restrict users to an example set or the original 30 voices.
+- **F13 — Design voices in the full product.** Create candidates from voice descriptions, obtain available official samples, optionally audition, and bind to roles. New voices do not replace old bindings automatically. Persistent age, accent, or timbre changes call for new voice candidates rather than bloated per-turn styles.
+- **F14 — Replicate only with genuine consent.** Use a user's specified reference and consent recordings from the same adult, the current official statement and allowed consent languages, and validate what can be checked locally. Never synthesize or splice consent evidence. Report real provider errors and leave unknown causes unknown; distinguish consent languages from synthesis languages.
+- **F15 — Expose storage and expiry.** Explicitly choose supported stored or temporary replication, protect temporary keys, and show type, expiry, and access state where available. Expiry, deletion, or project changes block only affected future generation, not delivery of existing audio. Never auto-replicate or delete old voices to free quota.
+- **F16 — Limit management effects.** Allow supported AI Studio-created voices, owned-voice queries, and explicitly authorized remote deletion. Unbinding a role or deleting local work must not delete a Google voice. A temporary key need not support list/delete; copying a catalog does not confer voice access.
+- **F17 — Respect model choice.** Flash is the creative default; Lite is an explicit choice. Keep model provenance for auditions and production. Never silently switch model, voice, or provider after failure. Surface language and feature differences.
+- **F18 — Support three organizations.** Continuous solo performance, compatible preset native two-speaker performance, and separate per-turn production for more roles/custom voices. Show incompatible combinations and true revision units before paid submission; no silent downgrade.
+- **F19 — Bound native dialogue honestly.** Ordered turns may contain per-turn style and supported listener/overlap intent, but a joint take has no separate speaker stems or exact turn timestamps. Separate per-turn tracks are available for focused editing but can sound different from a joint performance.
+- **F20 — Handle streaming and formats in the full product.** Preview during generation when host and route support it; otherwise save and report progress. Recognize actual provider format, rate, channels, and complete output. Keep originals; conversions and gain do not overwrite them. Avoid aggressive default processing.
+- **F21 — Count candidates.** One take per requested clip by default; more require an explicit count. Save actual text, style, voice, and model per take. Identical parameters do not guarantee an identical waveform. Selection belongs to the user or authorized host, not a hidden scoring model.
+- **F22 — Make service mode explicit.** Standard online is default. Offer verified Flex, Priority, or provider Batch in the full product with availability, waiting, and price source stated. Do not switch tiers automatically.
+- **F23 — Treat Batch as remote Batch.** Save provider job IDs, query/retrieve/cancel them, map each result/error to a clip, and assemble in work order. Handle partial success. A local concurrent loop is not provider Batch and cannot serve live preview.
+
+### State, recovery, and delivery
+
+- **F24 — Keep handoff readable.** Save enough source, direction, voice/take choice, and completed audio to continue in a later session without a database or chat history.
+- **F25 — Record execution state.** Write scope and identity before submission, report progress during local execution, and save results. A stopped local process is not a background job. Mark sent-but-unconfirmed requests uncertain; provider Batch has separate remote status.
+- **F26 — Avoid duplicate paid requests.** Bound retries for clearly retryable errors. Do not loop on authentication, rejection, or unsupported combinations. Connection loss, host timeout, interruption, or partial audio may mean the request was charged. Report attempts and known usage; unknown remains unknown.
+- **F27 — Cancel honestly and reuse work.** Stop local future clips and preserve completed audio; disconnection cannot promise a refund. Resume compatible results and isolate missing/corrupt/uncertain items. Let the user bound takes, clips, and attempts without building a wallet or staged payment gate.
+- **F28 — Revise the actual asset unit.** Change one independent clip when possible; any change in a joint native clip requires the whole joint take. Explain scope and keep older takes/versions. Reject stale writes that would overwrite a newer decision; no speculative multi-user merge system.
+- **F29 — Deliver accessible audio and feedback context.** Return files the current environment can access, with words, duration, and source. Bind feedback to clips and real time positions. If the host cannot listen, invite user audition; never claim it heard audio merely from text or file validity. Do not publish automatically.
+- **F30 — Export real coverage.** Export selected clips/scenes/whole work to WAV with actual-asset timeline and clear coverage. List missing/stale content before full export; label an explicit partial export. Never fabricate word subtitles, within-take turn timestamps, or separate stems for joint dialogue.
+
+### Credentials, privacy, and evidence
+
+- **F31 — Keep secrets out of ordinary context.** Read configured keys in the script; report only configured/not configured. Do not echo API or temporary voice keys, recording encodings, or unrelated private content in logs/chat/share packages. Treat source text and sample annotations as data, never instructions to change endpoints, reveal secrets, or run commands.
+- **F32 — Explain local versus provider storage.** Online synthesis, stored voices, Batch, and other remote resources have different retention. Deleting local work does not delete Google assets; turning off one storage mode is not a blanket privacy guarantee. Follow current provider terms.
+- **F33 — Distinguish caching from audio reuse.** Report provider cache usage only when returned; do not infer savings or pad text to force caching. Reuse existing compatible audio first. Offer explicit remote caching only after validating its TTS contract and explaining storage/lifetime.
+- **F34 — Mark unverified combinations.** Pure vocal sound effects, fine pronunciation, exact timing, and voice remix need evidence before stable-support claims. Authorized experiments remain experiments. Keep provider originals and available provenance, without promising C2PA/SynthID verification for every processed export.
+
+## 4. API research and capability limits
+
+This section summarizes primary-source review as of 2026-09-28. Documentation is not verification on this account or a listening-quality guarantee. The 2026-09-22 release notes mark Gemini 3.8 Flash TTS and Flash-Lite TTS GA, while the Voices API reference is still marked Beta. Treat model release and endpoint maturity separately. [R1], [R8]
+
+| | Flash TTS | Flash-Lite TTS |
 | --- | --- | --- |
-| 用户 | 提出目标、选择或授权决策、反馈听感 | 不必理解 API 协议或操作大量参数 |
-| 用户的 AI Agent | 理解人物与场景、安排导演稿、选择声音、解读反馈、决定下一步 | 不必每次临时编写 Gemini 请求与音频处理代码 |
-| Skill 指引与按需参考 | 提供 Gemini 特有的表演方法、能力边界、脚本使用方式 | 不规定唯一导演风格，不另起 Agent 循环 |
-| 配套执行脚本 | 校验输入、调用 Gemini、处理音频、保存结果、复用资产、拼接导出 | 不内嵌理解、规划、选声或审听 LLM |
-| Gemini TTS / Voices API | 合成声音、提供音色库、创建与管理受支持的自定义声音 | 不被当作全文规划器、通用音效生成器或审听器 |
+| Model ID | `gemini-3.8-flash-tts` | `gemini-3.8-flash-lite-tts` |
+| Official positioning | Complex acting, quality, dialects, longer creative work | Throughput, latency, cost |
+| Input/output ceiling per request | 8,192 / 16,384 tokens | 8,192 / 16,384 tokens |
+| Listed languages | 130 | 101 |
+| Voice ecosystem | Presets, extended library, design, replication | Same categories |
 
-**开放表达，稳定执行。** Skill 让强模型发挥判断力；脚本承接容易出错、需要重复执行的机械工作。创作判断不被固定情绪枚举或规则表替代。
+These are official positions, not this project's comparative listening results. Published language tables include simplified/traditional Chinese and Cantonese; script support does not establish a specific regional accent's quality. Default creative model is Flash, with user-selected Lite. Keep exact model provenance and actual service limits. [R2], [R3], [R4]
 
-### 1.2 明确的范围
+Provider and protocol are separate settings. The implementation supports Google GenerateContent and compatible `speech`; Interactions is pending. AIHubMix uses `instructions`, OpenRouter's documented Gemini 3.8 mapping uses `provider.options.google-ai-studio.speech_metadata.style`, and native Google uses `speech_metadata`. Validate each route; never cross-apply fields or silently drop style. The user's model ID is not locked to a dated example. A bring-your-own key still incurs provider charges; this tool has no platform billing. [AIHubMix TTS](https://docs.aihubmix.com/en/api/TTS), [OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts), [R5], [R9]
 
-完整版本覆盖：单人表演、自然语言风格、人声事件、停顿、预置双人对话、听者回应、逐轮多角色制作、音色库、声音设计、真人同意的声音复制、流式试听、长篇制作、候选选片、局部返工、恢复与导出，以及官方支持且实际验证可用的 Batch/Flex/Priority 选择。
+Gemini 3.8 documents separate free-form style, English angle-bracket vocal/pause events, at most two preset voices in a joint request, and `|reaction|` backchannels/overlap intent. It does not guarantee exact timing or that every performance instruction is realized. Custom voices in a multi-role scene need separate turns. Default one-shot audio is WAV; streaming defaults to raw PCM, with other documented encodings/rates. Requests have size limits, so long work needs scene segmentation. The implementation's narrower limits are in [usage](references/usage.md). [R4]
 
-首版交付不要求独立 CLI 产品、MCP server、Web 界面、后台守护进程、团队系统、收费平台或远端任务托管。脚本有可执行入口和清晰参数即可，不需要先打造一个通用命令行框架。
+Voice research: the core preset set has 30 voices, while the extended catalog is queryable/paginated; do not hard-code an overall ceiling. Prompted voice design can return `voice_...` and Create/Get may include sample audio, while List does not return `sample_audio`. Replication documentation specifies a 10–30-second adult reference and genuine consent recording. Stored designed/replicated voices share a stated 200-per-Google-project ceiling and one-year expiry; temporary `voicekey_...` lasts seven days. API operations include create/get/list/delete, without a general Update. Access remains tied to the Google project and permissions. Voice remix in launch material lacks a complete public implementation contract. These are researched capabilities, not implemented here. [R6], [R7], [R8], [R14]
 
-不内嵌导演或评审 AI；支持 AIHubMix、OpenRouter、Google AI Studio/Gemini API 及用户指定的兼容地址作为 Gemini 接入商，不限制用户的 AI 或 API 采购渠道。其他语音模型的专项能力不属于当前目标；不做语音通话、转写服务、音乐/环境音生成或自动发布。字幕、视频、配乐和独立音频审核可由用户现有工具继续完成。
+No reliable public TTS contract was found for word timestamps, separate native-dialogue stems, audio inpainting, seamless word repair, deterministic waveforms, exact numeric pace/pitch/emotion, mandatory SSML/IPA lexicons, or guaranteed standalone sound from a lone vocal tag. An available generic API field does not establish its TTS semantics. These are unverified rather than impossible. Engineering timelines and mixing must be labeled as postprocessing. Applause, doors, and thunder are outside vocal events; Live API, transcription, and music are separate services. [R4], [R15]
 
-## 2. 谁能使用，以及如何开始
+| Documentation discrepancy | Handling |
+| --- | --- |
+| Extended voice counts variously say 150+, hundreds, or 2,000+ | Show actual catalog, pagination, and retrieval date; no fixed total. |
+| `store` default differs between voice docs | Choose storage explicitly. |
+| Some voices called “permanent,” yet limits state one-year TTL | Show actual expiry where available. |
+| Old examples use 3.1 and raw PCM wrappers | Follow selected model contract and returned format. |
+| Dialogue and custom voices each exist but may not combine | State combination limits; use separate turns for custom voices. |
+| GA model and gradual/region-specific feature rollout | Check model, endpoint, account, and feature separately. |
+| Google mentions SynthID and, for replication, C2PA | Keep originals/provenance; do not promise verification on every export. |
+| Model-card limits differ from serving limits | Plan requests against the selected API's serving limit. |
 
-目标用户是已使用 AI Agent 的创作者和开发者，需要把文本制作成有表演的声音，并通过自然语言反复调整。
+Sources: [R1], [R4], [R6], [R7], [R8], [R14], [R20]. Focused endpoint validation is more useful than an elaborate audit system.
 
-宿主必须能读取 skill 指引、访问指定文件、运行配套脚本，并允许脚本访问用户配置的 Gemini API。不同宿主的 skill 发现、安装和音频展示能力分别验证；不能仅凭“支持 Claude/GPT”宣传，就认为任意网页聊天窗口都能直接运行。
+The dated Standard Paid pricing snapshot lists Flash at **$0.50 input / $9 output** and Lite at **$0.50 / $6** per million text/audio tokens through 2026-12-31, with published prices from 2027-01-01 of **$1 / $18** and **$1 / $12** respectively. This is not this tool's price list and says nothing about voice design/replication charges. Project quotas, region, account, and tier eligibility need separate checks; creating another key does not bypass project limits. Provider free/paid data-use terms differ; disabling one object store is not proof of zero retention. [R10], [R11], [R12], [R13]
 
-没有原生 skill 加载功能但具备文件与执行能力的 Agent，可以读取同一份指引并使用脚本。需要纯远端工具接入的客户端不是当前交付基线；出现真实需求后再考虑 MCP。
+The model pages list Batch, Flex, Priority, and caching, but support by a model does not prove every API interface or account exposes a combination. Standard online is the default. Documented Batch uses GenerateContent, remote asynchronous jobs, and an approximately 24-hour target turnaround, not instant streaming; Interactions lacks Batch. Flex and Priority are preview service choices, not automatic failovers or guaranteed latencies. Interactions has implicit caching while explicit caching uses another interface; no TTS-specific explicit-cache contract was verified here. Preserve returned usage instead of inferring hits or savings. All these remain future implementation and account-validation work. [R2], [R3], [R9], [R16], [R17], [R18], [R19]
 
-### 2.1 一句话路径
+## 5. Execution surface and roadmap
 
-用户说：“用轻松但不夸张的语气读这句话，给我 WAV。”
+The full product needs a small executable surface for checking configuration/capability, browsing voices, authorized voice design/replication/management, validating/generating/auditioning, inspecting/resuming work, managing provider Batch, comparing/selecting/revising takes, and exporting. This is a list of actions, not one command per row or a commitment that all exist today. Tools should return concise machine-readable status: success/failure, files, possible submission, and retry suitability. Avoid dumping long audio, base64, or logs into agent context. The local process is the boundary for online generation; its saved state does not resurrect it after exit. Ordinary file edits and text comparison can use the host's existing tools.
 
-Agent 读取核心指引，使用已配置凭据和合适音色，调用脚本生成音频，返回可播放文件及简短结果。无需先建立完整角色档案、章节结构或导演审批流程。
-
-### 2.2 有声故事路径
-
-用户说：“把这段故事做成父子对话，父亲克制，孩子有些委屈，先听开头。”
-
-Agent 判断原文、角色、表演和声音需求，按需加载选声/多角色参考，准备制作稿，用真实台词试听；根据用户已有授权推进。用户说“父亲最后一句太用力”，Agent 调整该处指令，脚本返回实际重做范围并生成新候选。满意后选片、拼接、导出；换一个 Agent 也能读取制作资料继续。
-
-这些路径是示例，不是要求所有任务固定经历同样步骤。用户已给定声音或导演稿时直接复用；单次配音不强制升级成长篇项目。
-
-## 3. Skill 的交付方式
-
-### 3.1 包内职责
-
-| 内容 | 作用 | 约束 |
+| Stage | User-visible outcome | Status |
 | --- | --- | --- |
-| `SKILL.md` | 名称、触发描述、快速使用、关键分工及按需引用入口 | 保持简短；不默认载入本 PRD 或整份官方手册 |
-| `scripts/` | 被 Agent 调用的可执行工具 | 只为真实执行需要增加脚本，不按每个情绪/声音事件造独立命令 |
-| `references/` | 表演方法、音色、特殊模式、输入契约与失败恢复说明 | 只加载当前任务需要的内容；记录来源与适用模型 |
-| 宿主适配元数据 | 某宿主确实需要的发现或展示信息 | 不改变制作语义，不绑定唯一导演模型 |
-
-以上是内容职责，不要求预建空目录。语言、SDK 和脚本文件数量由技术设计按最少可用实现选择。PRD 是开发资料，不成为每次调用时的上下文负担。指引按需加载，确定性操作交给脚本。
-
-### 3.2 运行与资产位置
-
-Skill 安装目录保存指引和工具，用户作品保存到用户指定输出目录，两者分开。脚本从任意工作目录调用都能找到自己的参考资源，不把作者电脑路径写成运行前提；升级 skill 不覆盖用户作品。
-
-单句生成至少返回音频和必要的生成说明；持续制作时保存可读的原文、角色/音色绑定、导演稿、各次生成结果与当前选片。做到能重读、比较和继续即可，不预先要求服务、数据库、队列或复杂审计链。
-
-凭据通过用户本地配置或安全环境提供。宿主 AI 的订阅/API 与 Gemini API 分别使用；skill 不接收平台充值、不代收模型费用。脚本仍报告调用次数和可得用量，防止意外反复合成。
-
-## 4. 产品行为
-
-以下要求描述用户及宿主 Agent 可观察的行为；创作指引由 Agent 执行，确定性约束由脚本保证。编号供后续实现引用，不应整体复制进 `SKILL.md`。
-
-### 4.1 指引、宿主与授权
-
-**F01 — 触发范围清楚。** 指引适用于使用 Gemini TTS 的配音、角色声音、情绪表演、试听修改和音频交付。只讨论模型、不要求制作时，不自动发起生成；不把其他厂商配音、实时通话或音乐任务改造成 Gemini TTS 任务。
-
-**F02 — Agent 负责导演。** 角色识别、场景拆分、情绪解释、选声与选片由宿主 Agent 或用户决定。脚本不隐藏调用文本模型，不把用户切换导演 AI 变成更换项目或重新配置内嵌 AI。
-
-**F03 — 按需加载，不强迫工作流。** 核心指引保留足够完成简单生成的信息；声音设计、复制、双人对话和 Batch 等细节按需读取。允许直接使用用户给定的台词、音色和计划，不为短任务制造完整制作流程。
-
-**F04 — 继承已有授权。** 生成、候选数量、选声和返工沿用用户已授予的范围；不重复逐句确认，也不从“读取了 skill”推导无限生成、上传录音、删除远端声音或发布作品的权限。授权不足时只暂停相关动作，其余已授权工作可以继续。
-
-**F05 — 环境和能力可检查。** 脚本能报告依赖、凭据是否配置、型号、功能组合与当前已知可用性。已文档化、脚本已实现、账户已验证三种状态分开；未知不是已支持，一次限流也不代表永久不支持。普通检查不产生语音，需真实生成验证时明确说明。
-
-### 4.2 文稿与表演
-
-**F06 — 原文、台词与导演指令分开。** 接受直接文本、UTF-8 TXT/Markdown 和 Agent 准备的制作稿。原文保留，实际朗读文本可查看；角色标记、场景备注、表演意图不被悄悄混进台词。默认忠实朗读；改编、翻译、增删台词必须来自用户授权并显示差异。
-
-**F07 — 风格开放且克制。** 支持自由文本表演意图，不只支持有限情绪枚举。稳定身份由音色承担，当下表演由短的轮级指令承担；允许空风格。Skill 提供“先听基线、只加必要引导”等决策建议，不为每句强制插入情绪、笑声或叹气。
-
-**F08 — 人声事件可定位。** 可以在明确台词位置安排、移动和删除人声/停顿事件，查看所属角色与实际提交形式。持续耳语或疲惫归入轮级风格；瞬时吸气、叹气、笑声等按模型事件能力表达。未知标签标为实验或返回不支持，不能默默丢弃。
-
-**F09 — 语法与添词可核对。** 文本中的尖括号和竖线与控制语法冲突时要求明确意图。新增“嗯”“唉”等词语或 backchannel 内容是台词变更，不能为了自然度隐形添加。事件不改变原文字词的记录，实际送入 Gemini 的内容仍可查。
-
-**F10 — 发音控制不假装精确。** 可以保留专名、多音字和混合语言读法备注；在授权下用显式 spoken alias 尝试纠正读音，并保存与原文的对应。尚未验证的提示不进入逐字稿，也不假定 SSML/IPA 等字段有效。数值化语速、音高、精确句内停顿或纯事件生成等未证实能力不得标为可靠支持。
-
-**F11 — 分段由表演需求决定。** Agent 可依据场景、说话轮次和情绪转折安排连续片段；脚本验证服务上限并指出超限位置，不沿用固定 300 字符切片，不静默删字。需要重新分段时由 Agent 调整，复用仍兼容的生成结果。
-
-### 4.3 声音发现、设计与复制
-
-**F12 — 可发现且可比较。** 脚本支持查询和筛选当前可见音色、查看详情、直接使用声音引用。Agent 根据语言、口音和人物需求选择候选，用真实台词试听并记录所用型号与声音；无法获得的预览不冒充现成音频。试听生成与正式生成一样计入调用次数。
-
-**F13 — 声音设计属于完整功能。** Agent 可以根据声音描述创建候选，取得官方可得样音，必要时另行试听，再绑定角色。新设计不会自动替换旧声音；固定声线后仍可调整每轮表演。长期年龄、口音和音质改变应通过新声音候选处理，不重复堆进每句风格。
-
-**F14 — 复制使用真实材料。** 接受用户指定的同一成年人的参考与同意录音；按当期官方要求及同意语言展示逐字声明、检查可确定的文件问题并提交。不能伪造、合成或拼接同意材料绕过验证。失败时显示供应商可得错误，未知原因保持未知，不虚构声纹评分。同意语言范围与合成语言范围分开。
-
-**F15 — 声音存储与有效期显式。** 设计声音按其受支持方式创建；复制可显式选择存储式或受支持的临时 key。返回声音类型、可得的过期信息与访问状态，保护临时 key。到期、删除或更换 Google 项目后只暂停受影响生成，已有音频仍可交付。不自动更换声线、重新复制或删除旧声音腾配额。
-
-**F16 — 管理范围清楚。** 支持使用用户从 AI Studio 等受支持入口建立的声音、查询可访问的自有声音，以及明确授权的远端删除。解绑角色或删除本地作品不会顺带删除 Google 侧声音。临时 key 不承诺具备远端列出/删除能力；复制目录不等于复制声音权限。
-
-### 4.4 生成方式与输出
-
-**F17 — 型号由调用者确定。** 默认创作型号为 Flash；Lite 是显式选择。试听和正式生成默认同型号，切换型号时保留真实来源；失败不静默换型号、音色或供应商。能力查询说明不同型号的语言和功能差异。
-
-**F18 — 三种表演组织方式。** 支持单人连续表演、兼容预置音色的原生双人表演，以及多个角色/自定义声音的逐轮制作。返回方式的限制与重做单位；不兼容组合在提交前指出，不能自动降级后继续收费生成。
-
-**F19 — 双人对话有真实边界。** 原生双人可传有序发言、逐轮风格及受支持的回应/重叠意图。它不是任意人数场景，也不保证独立声轨或精确轮次时码。想获得独立角色片段时使用逐轮制作，并承认听感可能与原生联合表演不同。
-
-**F20 — 流式与格式完整。** 在宿主具备播放能力时支持边生成边听；否则保存结果并报告进度。脚本正确识别供应商音频格式、采样率与声道，保存原件和完整结果，不把首块数据或正常文件头当作整段完成。转换、归一或增益处理不覆盖原件；默认不施加强力后期改变表演。
-
-**F21 — 候选生成有数量。** 每个指定片段默认生成一个 take，多个候选需明确数量。每次保存实际台词、指令、音色和型号；同参数不承诺重现同一波形。选片由用户或获授权的 Agent 决定，不内嵌评分模型自动挑选。
-
-**F22 — 服务方式可选择。** 在线 Standard 是默认；完整版本开放经过验证的 Flex、Priority 与供应商 Batch。显示当前方式、流式可用性和等待性质，不因变慢或容量不足自动改服务级别。价格信息可以指向官方页面，不建立平台账本。
-
-**F23 — Batch 可跨会话继续。** 非紧急片段可提交为真正的供应商批任务，保存远端引用并通过脚本查询、取回、取消。每项结果和错误对应原片段，按作品顺序装配；部分成功时只处理缺失/失败部分。本地并发循环不冒充 Batch，Batch 不承担即时流式试听。
-
-### 4.5 保存、返工与恢复
-
-**F24 — 已有成果可接手。** 单次生成无需复杂项目初始化；持续制作保存足以还原决定的可读文件和音频。另一位 Agent 能看清原文、导演稿、角色声音、已完成片段与选片，不依赖上一段聊天记忆或供应商对话历史。作品与 skill 安装文件分开，更新 skill 不损坏作品。
-
-**F25 — 简单执行也要留下结果状态。** 脚本在远端提交前记录本次范围和身份，执行中可报告进度，结束后保存结果。新会话可以读取记录，不意味着本地进程退出后仍有后台任务。已发送但未确认完成的工作标为结果不确定；供应商 Batch 有单独的远端续查语义。
-
-**F26 — 重试不制造重复创作。** 明确可重试错误使用有限次数；认证、内容拒绝或不支持问题不循环重跑。网络断线、宿主超时、进程终止或部分音频已返回时不能假装请求未发生；没有确定结果时不盲目重发整段。脚本报告实际尝试次数和可得用量，缺失用量显示未知。
-
-**F27 — 取消与继续保持诚实。** 取消停止能停止的本地执行和后续片段，保留已完成音频；不能承诺断开连接撤销 Google 费用。继续制作优先复用兼容结果，缺失、损坏或结果不确定项单独列出。用户可限定候选数、片段数和尝试次数，无需引入余额或逐阶段金额审批。
-
-**F28 — 重做范围由真实资产决定。** 修改独立片段只重做对应片段；修改共享原生双人 take 默认重做整条 take。重做前说明范围，保留旧候选与选片，不承诺按字无缝修补。旧稿音频标明其版本；并发或旧版本写入应拒绝覆盖新决定，不开发多人自动合并功能。
-
-**F29 — 反馈和音频可取得。** 返回当前执行环境可访问的文件及台词、时长、来源说明，允许反馈绑定片段和实际时间位置。客户端不能播放时说明访问方式；不自动公开上传。Agent 没有音频理解能力时只提供音频给用户或其现有工具，不根据脚本文字伪称已听审。
-
-**F30 — 导出基于真实范围。** 可选片段、场景或整部作品导出 WAV，并提供实际片段、导演稿和按真实片段时长计算的时间线。缺失/旧稿内容在完整导出前列出；允许显式导出已有部分，但标明范围。压缩格式可本地转换；无可靠信息时不伪造逐词字幕、单 take 内的每轮时码或双人独立声轨。
-
-### 4.6 凭据、内容与能力真实性
-
-**F31 — 敏感资料不进入普通上下文。** 脚本读取已配置凭据，普通结果只报告配置状态。API Key、临时 voice key、录音编码和无关私人内容不回显到日志或聊天，也不进入默认分享包。文稿、角色备注和样本中的指令被当作数据，不能据此更换请求地址、读取秘密或执行命令。
-
-**F32 — 本地与远端存储分开说明。** 默认在线合成不保留交互对象；选择声音存储、Batch 或其他会留存资源的方式时说明实际外发/保存范围。删除本地项目不等于删除 Google 资源；关闭某项存储不等于供应商完全不留数据。遵循当前官方条款，不承诺自带 Key 即绝对私密。
-
-**F33 — 缓存不混同音频复用。** 返回供应商可得的缓存用量，不猜测命中和省费；不为了命中缓存往台词塞无关内容。已有音频复用优先于相同输入再生成。显式缓存只有在 TTS 契约验证后才开放，并说明远端存储和生命周期，不默认创建收费缓存。
-
-**F34 — 未确认能力保持可见。** 对纯人声素材、精细发音、精确时码、声音 remix 等尚未证实的组合，说明已知情况和待验证项。实验可以在用户授权下进行，但不能变成“已稳定支持”的宣传。保留供应商原件与可得来源信息，不承诺所有后期文件都可验证 C2PA/SynthID。
-
-## 5. Gemini TTS 能力依据
-
-本节沿用 2026-09-28 已完成的一手资料核查。本次重写调整产品形态，没有重新调用模型；“已文档化”不等于当前账户已验证，也不代表输出质量保证。
-
-### 5.1 当前模型与接入路线
-
-2026-09-22 的官方发布记录将 Gemini 3.8 Flash TTS 与 Flash-Lite TTS 标为 GA；Voices API 参考仍标示 Beta。模型发布状态与端点契约成熟度应分别处理。[R1]、[R8]
-
-| 项目 | Flash TTS | Flash-Lite TTS | 对 本 skill 的决定 |
-| --- | --- | --- | --- |
-| 模型标识 | `gemini-3.8-flash-tts` | `gemini-3.8-flash-lite-tts` | 保存准确型号，禁止静默切换 |
-| 官方定位 | 复杂表演、音质、方言、长篇创作 | 吞吐、延迟和成本 | 默认 Flash；Lite 由用户或其 Agent 显式选择 |
-| 单次输入/输出上限 | 8,192 / 16,384 token | 8,192 / 16,384 token | 不以“支持长篇”推导单请求可生成整本书 |
-| 官方语言数 | 130 | 101 | 查询具体语言，不把两者覆盖范围混用 |
-| 音色生态 | 预置、扩展库、设计、复制 | 同样支持 | 同一功能入口暴露型号差异与组合限制 |
-
-依据：[Flash 模型页][R2]、[Flash-Lite 模型页][R3]。质量和稳定性的优劣是官方定位，本 skill 尚无独立听测结果。语言支持表包含简体中文、繁体中文和粤语；文字系统不等于具体地区发音质量。[R4]
-
-接入商与 API 协议分开配置。Google 原生能力作为研究基线，不作为用户必须选择的采购路线。当前脚本实现 GenerateContent 与兼容 speech 接口；Interactions 尚待实现。AIHubMix 使用 instructions，OpenRouter 的 Gemini 3.8 文档已提供 provider.options.google-ai-studio.speech_metadata.style，Google 原生使用 speech_metadata；各路由分别验证，不能混用字段或静默丢弃导演指令。模型 ID 可由用户指定，不因示例版本而锁定。自带 Key 不取消供应商收费，本工具不增加平台计费。依据：[AIHubMix TTS](https://docs.aihubmix.com/en/api/TTS)、[OpenRouter TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts)、[R5]、[R9]。
-
-### 5.2 能力与限制地图
-
-| 能力 | 调研事实或边界 | 本 skill 应开放的体验 |
-| --- | --- | --- |
-| 逐轮表演 | 3.8 将持续风格放在 `speech_metadata.style`；台词独立 | 自然语言表达克制、犹豫、语速、音高、音量等意图 |
-| 瞬时人声 | 支持英文尖括号形式的人声事件与停顿 | 在具体台词位置安排叹气、呼吸、笑、抽泣、惊呼等 |
-| 双人对话 | 单请求最多两位预置音色；可采用 conversational 模式 | 在一次场景表演里保留双方轮替关系 |
-| 听者回应与重叠 | 文档提供 `\|reaction\|` 写法；没有精确时码保证 | 可表达插话、附和、重叠意图，并通过试听选片 |
-| 自定义声音多人场景 | 设计/复制音色需各角色逐轮生成 | 明确采用逐轮制作，不冒充原生联合表演 |
-| 流式与格式 | 单次默认 WAV，流式默认裸 PCM；可选择 PCM、μ-law、A-law及采样率 | 生成中预听，保留完整源音频，按用途导出 |
-| 长篇制作 | 输入输出有单请求上限；官方强调跨轮稳定性 | 按表演场景分段、持续绑定音色、保存各次结果 |
-
-上述能力及组合限制来自 [TTS 指南][R4]。其中“可控制”表示有引导接口，不表示精确执行每个情绪、停顿时长或重叠位置。完整标签清单跟随官方指南更新，不在 PRD 固化成永不变化的枚举。
-
-| 声音资产能力 | 调研事实或边界 | 本 skill 应开放的体验 |
-| --- | --- | --- |
-| 核心与扩展音色库 | 有 30 个核心预置音色；扩展库可查询、筛选和分页 | 按语言、口音、声音特征、使用场景发现声音；以实际可见目录为准 |
-| 声音设计 | 自然语言创建 `prompted` 音色，取得 `voice_...`；Create/Get 可含试听音频 | 从角色描述创建、试听、比较并固定一个声线 |
-| 设计音色预览 | List 不返回 `sample_audio`；该字段不覆盖预置和复制音色 | 不把库查询误当成已经取得可播放样音 |
-| 声音复制 | 需要同一成年人的 10–30 秒参考录音与本人同意录音 | 引导用户准备材料，通过官方验证后生成可用声线 |
-| 存储式声音 | 设计/复制合计每 Google 项目 200 个、1 年有效期 | 关联角色，显示到期信息和不可用状态 |
-| 无状态复制 | 可返回 `voicekey_...`，有效期 7 天 | 作为用户主动选择的临时方式，保护 key，明确生命周期 |
-| 生命周期管理 | API 有创建、查询、列出和删除；未提供通用 Update | 新版本声音以新候选处理，不承诺原地改造已有声音 |
-
-依据：[声音设计][R6]、[声音复制][R7]、[Voices API][R8]。这类 ID 的使用依赖 Google 项目与访问权限，不能承诺复制目录后在任意账户继续合成。Voice remix 在发布文案中仍属后续能力，当前缺少足以实施的完整公开契约，不与已支持的声音设计混写。[R14]
-
-### 5.3 不可误当成已支持的能力
-
-本次在公开 TTS 契约中未找到以下可靠承诺：逐词时间戳、双人独立声轨、原始音频局部 inpainting、按字无缝修补、确定性波形复现、以数字精确指定语速/音高/情绪强度、SSML/IPA 强制发音词典，以及只提交一个人声标签就必定获得独立声音素材。通用 API 存在某字段不等于 TTS 已支持该语义。[R4]、[R15]
-
-这些是“未证实”，不是宣称永远不可能。本 skill 不伪造对应能力；需要的时间轴、剪辑和音量处理作为工程后处理明确标示。真人讲话之外的掌声、关门、雷声等不属于这里的人声标签能力。Live API、转写模型和音乐模型也不与 TTS 混为同一个服务。
-
-### 5.4 官方资料的冲突及处理方式
-
-| 差异 | 当前资料 | 产品处理 |
-| --- | --- | --- |
-| 扩展音色数量 | 发布记录、TTS 指南、博客分别出现 150+、hundreds、2,000+ | 不写死总数；返回当前目录、分页和查询时间 |
-| `store` 默认值 | Voices API 参考与复制指南的默认描述不一致 | 创建声音时显式选择存储方式；不依赖隐含默认 |
-| “永久”音色 | 个别说明用 persistent/permanent，但限制页给出一年 TTL | “可复用”不等于永久；优先展示实际过期时间 |
-| 旧示例混入新文档 | 部分 Go 示例仍使用 3.1 型号和裸 PCM 包装 | 以选定版本契约和返回音频格式为准，不机械复刻代码片段 |
-| 双人和自定义声音 | 两者各自支持，不代表可任意组合 | 能力必须描述组合限制；自定义多人采用逐轮制作 |
-| GA 与地区上线 | 发布记录标 GA，博客描述逐步上线；部分地区限制只针对 AI Studio 复制功能 | 分别展示模型、端点、账户和功能可用性，避免互相外推 |
-| 来源标识 | Google 宣称 SynthID；复制相关文案还提及 C2PA | 保留供应商原件及可得元数据；不承诺所有导出都具备可验证 C2PA |
-| 模型能力与服务限制 | 模型卡描述的能力上限与 API serving limit 不同 | 用户请求按实际使用接口的限额安排，不以模型研究上限替代服务上限 |
-
-依据：[R1]、[R4]、[R6]、[R7]、[R8]、[R14]、[R20]。这些差异需要聚焦接口验证，不需要在产品里建立复杂的审计体系。
-
-### 5.5 费用与可用性对产品的实际影响
-
-按核查日官方 Standard Paid 价格，每百万输入文本/输出音频 token：Flash 为 **$0.50 / $9**，Lite 为 **$0.50 / $6**，适用至 2026-12-31；官方列出的 2027-01-01 起价格分别为 **$1 / $18** 与 **$1 / $12**。这只是有日期的调研快照，不是 本 skill 的收费表；声音设计、复制及其他服务的费用不得由这张合成价目表推断。[R10]
-
-配额取决于 Google 项目和服务层级，不以新增 API Key 绕开。用户的地区、账户与模型权限需要分别诊断；无法访问时直接说明原因和官方入口，不建立隐蔽代理或自动换供应商。[R11]、[R12]
-
-官方对免费与付费服务的数据使用有不同条款；关闭交互对象存储不等于免除服务条款或所有日志留存。本 skill 应明确发送了什么、保存在哪里，提供官方说明，避免“自带 Key 所以绝对私密”的承诺。[R9]、[R13]
-
-### 5.6 批量、服务级别与缓存
-
-两款模型页都列出 Batch、Flex、Priority 和 Caching 支持，但模型支持不等于所有接口都开放同一能力。[R2]、[R3]
-
-| 方式 | 已确认的接口边界 | 本 skill 的产品安排 |
-| --- | --- | --- |
-| Standard 在线生成 | 适合即时制作与试听 | 默认方式，优先保障创作反馈闭环 |
-| Batch | 当前只通过 GenerateContent；Interactions 不支持。官方以异步任务和约 24 小时目标周转时间描述服务，并非即时响应保证 | 纳入非紧急长篇/大量片段制作；不能把本地并发调用叫成供应商 Batch |
-| Flex | 官方提供服务级别选择，仍属 Preview；延迟与容量可能不同 | 由调用者显式接受速度/成本取舍，不自动升级到其他级别 |
-| Priority | 官方提供服务级别选择，仍属 Preview | 给需要更快返回的用户选择，不承诺固定延迟 |
-| 缓存 | Interactions 仅隐式缓存；显式缓存需其他接口。通用门槛表未列 TTS 专属数值 | 保留实际返回的缓存用量；不为了命中而塞无关文本，不承诺优惠或声音结果复用 |
-
-依据：[Batch][R16]、[Flex][R17]、[Priority][R18]、[Caching][R19]、[Interactions][R9]。TTS 在这些模式下的实际账户权限、额度和具体参数组合仍需验证；尤其不能把在线双人示例原封不动混入另一接口的批处理请求。显式缓存的 TTS 创建/引用契约未完成验证，先作为可发现的待确认能力，不列为已经可交付。
-
-## 6. 脚本提供的最小操作面
-
-下表描述必须可执行的动作，不规定命令名称、文件数量或编程语言。可以由少数脚本覆盖多项动作，不将每行机械变成一个独立工具。
-
-| 操作 | 调用者提供 | 结果 |
-| --- | --- | --- |
-| 检查环境/能力 | 所选模型与可选检查范围 | 配置、支持组合和实际验证状态 |
-| 查询/查看声音 | 筛选条件或声音引用 | 分页音色资料、兼容性和可得到期信息 |
-| 设计/复制/管理声音 | 描述，或录音引用与存储选择；明确管理动作 | 声音引用、可得样音或供应商错误 |
-| 校验/生成/试听 | 文本或制作稿、声音、表演、输出路径、候选数与服务方式 | 校验问题，或本次记录、进度和音频文件 |
-| 查看/继续已有制作 | 用户输出目录或已有记录 | 当前资产、缺失/不确定部分和可执行范围 |
-| 供应商 Batch | 提交内容或已有远端任务引用 | 任务状态、各片段结果、取消结果 |
-| 比较/选择/重做 | 候选引用及修改后的安排 | 实际重做范围、保留的旧候选和当前选片 |
-| 拼接/导出 | 已选结果、顺序、可选静音/增益和格式 | 音频、实际覆盖范围和片段时间线 |
-
-脚本应有简短帮助和稳定的机器可读结果，使 Agent 能确定成功/失败、文件位置、是否可能已经提交以及是否适合重试。长音频、录音 base64 和大篇幅日志不直接灌进模型上下文。常见格式、作用域与失败处理在脚本里执行，不让 Agent 每次重新构造 HTTP 请求或重写音频编码逻辑。
-
-本地在线生成以实际运行进程为执行边界。宿主可用自己的终端会话能力观察运行，不要求 skill 自带常驻服务；读取留下的记录不意味着能复活已退出的进程。供应商 Batch 查询由已有远端 ID 完成，不需要自建云任务平台。
-
-单纯改台词、读文件、比较文字指令等工作可由宿主已有文件工具完成；只在参数复杂、重复频繁或会损坏制作状态时提供专用脚本操作。避免为普通文件操作重造工具集。
-
-## 7. 完整版本的实施顺序
-
-先完成一条可实际使用的短闭环，再扩展专门模式；完整能力范围保持不变。每个阶段都应能通过同一份 skill 入口找到相应工具与参考。
-
-| 阶段 | 用户能完成什么 | 范围 |
-| --- | --- | --- |
-| A：可用的声音导演 skill | 宿主 Agent 读取指引，用真实台词生成单人/兼容双人样段，安排情绪和人声事件，试听后修改一段并导出 | 核心指引、调用与落盘、基本保存/重试、播放交付 |
-| B：完整声音生态 | 搜索声音，设计角色声线，通过真实同意材料复制声音，长期绑定角色并处理到期/权限 | 按需音色参考与管理脚本 |
-| C：持续制作 | 长文本安排、多个 take、选片、受影响范围重做、换 Agent 续接、拼接和完整/部分导出 | 文件化制作状态和实际资产复用 |
-| D：不同规模与速度 | 同一制作稿使用已验证的 Batch/Flex/Priority，取回部分结果，查看实际缓存用量 | 按需服务模式参考与执行支持 |
-
-完整版本保留这些已文档化的能力范围，具体组合以账户和接口验证为准；不能以阶段 A 完成就宣称所有能力已经释放，个别账号无法使用的功能如实显示。反过来，某项进阶功能或可选验证受阻，也不应阻塞已能工作的制作路径。
-
-独立 CLI 只在需要脱离 Agent 的稳定自动化入口时提炼；MCP 只在真实宿主缺少执行能力、但需要远端工具调用时增加。这些变化复用现有执行能力，不提前维护两套或三套产品表面。
-
-旧 narracue/YoYoSay 工程按需借用音频处理和资产恢复经验，不整体迁入原有状态机、内嵌导演、固定情绪映射、Web 服务、订单或费用授权。实现语言与依赖在技术设计时决定，选能完成既定行为的最小方案。
-
-## 8. 开放问题与仍未完成的核验
-
-| 问题 | 需要确认的实际结果 | 当前状态 |
-| --- | --- | --- |
-| 宿主兼容性 | 至少在两种目标 Agent 环境里完成读取 skill、运行脚本、取得音频和换会话继续；音频可播放与模型可审听分别确认 | 未运行 |
-| Gemini 账户能力 | 两模型、音色库、声音设计/复制及服务级别在用户项目下的真实权限与限制 | 未运行 |
-| 导演价值 | 同文比较无风格基线与 Agent 导演版，检查中文自然度、叹气位置、克制情绪和双人关系；必要时比较 Flash/Lite | 未进行听测 |
-| 自定义声线 | 跨段、跨情绪、跨模型的实际稳定性以及过期/权限变化的返回 | 未运行 |
-| 失败恢复 | 断流、进程退出、配额错误与供应商 Batch 部分失败后，能否复用既有结果并避免盲重发 | 未运行 |
-| 长文与导出 | 在实际服务限额内的漏读/复读、切段衔接，以及片段时间线是否如实反映音频 | 未运行 |
-| 执行依赖 | 选择的语言/SDK/本地音频工具能否满足能力而不过度安装；宿主安装方式如何最简 | 技术设计决定 |
-
-核验以少量真实场景和聚焦脚本检查为主，不先建评测平台。Skill 的实际试用还应观察：Agent 是否只加载所需参考，是否理解声音组合限制，能否在收到用户反馈后正确选用已有脚本。文档通过检查不等于 skill 已可用，API 返回成功也不等于表演效果好。
-
-## 9. 资料来源
-
-接口研究记录于 2026-09-28，链接在下方列出；实际验证范围见文档开头及使用指引。产品行为是本 PRD 的设计要求，不能被读成供应商保证。
-
-- [R1 · Gemini API Release notes][R1]：3.8 两款 TTS 的发布状态。
-- [R2 · Gemini 3.8 Flash TTS][R2]：定位、输入输出、限制和迁移。
-- [R3 · Gemini 3.8 Flash-Lite TTS][R3]：定位、语言与型号差异。
-- [R4 · Text-to-speech generation][R4]：风格、声音事件、对话、格式、语言、限制。
-- [R5 · GenerateContent TTS guide][R5]：旧接口路径及协议差别。
-- [R6 · Voice design][R6]：描述创建声音、预览和生命周期。
-- [R7 · Voice replication][R7]：样本、真人同意、两种存储方式。
-- [R8 · Gemini Voices API reference][R8]：音色查询、创建、删除和字段。
-- [R9 · Interactions overview][R9]：新接口、存储行为和适用范围。
-- [R10 · Gemini Developer API pricing][R10]：带有效日期的价格与服务类别。
-- [R11 · Rate limits][R11]：配额口径。
-- [R12 · Available regions][R12]：通用地区/账户准入，不能替代具体声音功能验证。
-- [R13 · Gemini API Additional Terms][R13]：服务数据使用条款。
-- [R14 · Gemini 3.8 TTS 发布博客][R14]：创作定位、上线、声音来源标识与地区脚注。
-- [R15 · GenerateContent API reference][R15]：通用字段不能自动推定为 TTS 支持。
-- [R16 · Batch API][R16]：接口范围、异步任务与逐项结果。
-- [R17 · Flex inference][R17]：可选服务级别及可用性边界。
-- [R18 · Priority inference][R18]：可选优先处理级别。
-- [R19 · Context caching][R19]：隐式/显式缓存与接口差异。
-- [R20 · Gemini 3.8 Audio model card][R20]：研究模型能力，不替代 API serving 限额。
-
+| A. Core direction | Direct and render short solo/compatible dialogue examples, vocal events, one revision, playback/export | Core implemented; native dialogue offline-tested only. |
+| B. Voice ecosystem | Search, design, and consensually replicate voices; bind roles and handle expiry/access | Future. |
+| C. Sustained production | Segment long work, select takes, revise affected assets, resume across agents, export complete/partial work | Core file-based path implemented; long live work needs validation. |
+| D. Scale and speed | Verified Batch/Flex/Priority, partial retrieval, actual cache usage | Future. |
+
+A standalone CLI product belongs only when automation outside an agent needs it. MCP belongs only when a real host cannot execute scripts yet needs remote tools. Do not prebuild parallel surfaces. Earlier audio-processing projects may inform implementation, but do not import their state machines, embedded director, fixed emotions, web services, or billing flows wholesale.
+
+## 6. Validation still needed
+
+- Host compatibility: install/read/run/playback/resume in at least two target agent environments; distinguish player access from agent listening ability.
+- Live account capability: both models, catalog, design/replication, tiers, and their limits on the user's project.
+- Acting: compare baseline and directed versions on representative material; check naturalness, restraint, event position, and two-person relationship. No systematic listening study has been done.
+- Custom voice stability and expiry across clips, emotions, and models.
+- Real disconnections, process exit, quota errors, and provider Batch partial failures without blind resends.
+- Long-form omissions/repeats, transitions, route limits, and timeline accuracy.
+
+Use a few real scenarios and focused checks, not a speculative evaluation platform. Documentation passing a link check is not proof of a usable skill; an API success is not proof of a good performance.
+
+## 7. Primary sources
+
+These were reviewed on 2026-09-28. Product requirements above are design choices, not provider guarantees.
+
+- [R1 · Gemini API release notes][R1]: model release status.
+- [R2 · Gemini 3.8 Flash TTS][R2], [R3 · Flash-Lite TTS][R3]: positioning and model limits.
+- [R4 · Speech generation][R4], [R5 · GenerateContent TTS][R5]: style, events, dialogue, formats, routes.
+- [R6 · Voice design][R6], [R7 · Voice replication][R7], [R8 · Voices API][R8]: voice creation, consent, lifecycle, and fields.
+- [R9 · Interactions][R9]: interface and storage behavior.
+- [R10 · Pricing][R10], [R11 · Rate limits][R11], [R12 · Regions][R12], [R13 · Terms][R13]: cost, access, and data-use context.
+- [R14 · Gemini 3.8 TTS launch][R14], [R15 · GenerateContent API][R15], [R20 · Audio model card][R20]: launch context, generic fields, and research limits.
+- [R16 · Batch][R16], [R17 · Flex][R17], [R18 · Priority][R18], [R19 · Caching][R19]: possible future service modes.
 
 [R1]: https://ai.google.dev/gemini-api/docs/changelog
 [R2]: https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash-tts
