@@ -68,20 +68,21 @@ python3 scripts/tts.py --help
 先检查实际请求，`--dry-run` 无需 Key，不联网、不计费：
 
 ```sh
-python3 scripts/tts.py render --config /path/to/route.json --plan assets/dialogue-plan.json --out /path/to/audio --dry-run
+python3 scripts/tts.py render --config /path/to/route.json --plan examples/native-dialogue/plan.json --out /path/to/audio --dry-run
 ```
 
 真实生成需要相应接入商的 Key 环境变量及用户授权。Key 不写入制作 JSON 或 HTML；TTS 费用由接入商收取。具体配置、生成和返工命令见 [使用与接入](references/usage.md)。
 
 ## 文档与示例
 
+- [原生双人示例](examples/native-dialogue/director.md)：原创英文短对话，标清双方的主句与听者回应；含 HTML 和制作 JSON。
 - [英文文学示例](examples/the-magic-finger/director.md)：《The Magic Finger》开篇至四声枪响，包含课堂回忆与打猎段落。
 - [中文文学示例](examples/kong-yiji/director.md)：《孔乙己》的错位群声，保留中文原句，导演说明为英文。
 - [Skill 入口](SKILL.md)：给 Agent 的执行指引。
 - [导演方法](references/directing.md)：文本判断、表演选择、原文与改编边界。
 - [导演稿与试听](references/preview.md)：可读页面、音色样本和可选试音。
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
-- [双人示例](assets/dialogue-plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
+- [双人示例](examples/native-dialogue/plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
 
 下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。播放器只播放官方已有音色样本，没有为该示例生成 TTS。
 

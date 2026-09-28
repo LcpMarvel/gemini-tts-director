@@ -1,0 +1,31 @@
+{
+  "title": "About yesterday — native two-speaker dialogue",
+  "clips": [
+    {
+      "id": "conversation",
+      "source_text": "Alex: About yesterday,\nSam (responding): I'm listening.\nAlex: I'd like to explain.\nSam: Take your time,\nAlex (responding): Really?\nSam: I'm not upset.",
+      "speakers": {
+        "Alex": "Charon",
+        "Sam": "Kore"
+      },
+      "turns": [
+        {
+          "speaker": "Alex",
+          "text": "About yesterday,|I'm listening.|I'd like to explain.",
+          "style": "Hesitant, speaking softly",
+          "events": [
+            {
+              "at": 0,
+              "tag": "breath"
+            }
+          ]
+        },
+        {
+          "speaker": "Sam",
+          "text": "Take your time,|Really?|I'm not upset.",
+          "style": "Gentle and reassuring"
+        }
+      ]
+    }
+  ]
+}

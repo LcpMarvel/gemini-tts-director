@@ -27,7 +27,7 @@ class Flow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, patch.object(tts, 'call', side_effect=AssertionError('Examples must stay offline')):
             cfg = Path(folder) / 'route.json'
             tts.save(cfg, {'provider': 'google', 'model': 'gemini-3.8-flash-tts'})
-            for name, count in (('assets/dialogue-plan.json', 1), ('examples/kong-yiji/plan.json', 4),
+            for name, count in (('examples/native-dialogue/plan.json', 1), ('examples/kong-yiji/plan.json', 4),
                                 ('examples/the-magic-finger/plan.json', 13)):
                 result = tts.render(tts.config(cfg), tts.read(root / name), Path(folder) / 'audio', dry=True)
                 self.assertEqual(len(result['requests']), count)
@@ -52,7 +52,7 @@ class Flow(unittest.TestCase):
             self.assertIn(clip['source_text'], (example / 'director.md').read_text())
 
     def test_native_dialogue_lifecycle(self):
-        plan = tts.read(Path(__file__).parents[1] / 'assets/dialogue-plan.json')
+        plan = tts.read(Path(__file__).parents[1] / 'examples/native-dialogue/plan.json')
         with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {'TTS_TEST_KEY': 'local-test-only'}):
             root = Path(folder)
             tts.save(root / 'route.json', {'provider': 'google', 'model': 'gemini-3.8-flash-tts', 'key_env': 'TTS_TEST_KEY'})

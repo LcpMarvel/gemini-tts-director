@@ -38,14 +38,15 @@ Give your agent a text and a request such as:
 
 The director chooses a production method from the text and character relationships; one work can combine methods. Official prerecorded voice samples can be played without TTS. Changing a candidate voice does not generate audio. The included 70 sample URLs are a dated snapshot, not a limit on the voice library.
 
-## Literary examples
+## Examples
 
 | Example | What it demonstrates | Files |
 | --- | --- | --- |
+| *About yesterday* — original dialogue | Two speakers respond inside each other’s turns using native listener reactions. | [Director’s script](examples/native-dialogue/director.md) · [HTML preview](examples/native-dialogue/director.html) · [Production JSON](examples/native-dialogue/plan.json) |
 | *The Magic Finger* — Roald Dahl | An English opening excerpt through the four gunshots: first-person narration, the classroom flashback, and the duck hunt. No invented listener reactions. | [Director's script](examples/the-magic-finger/director.md) · [HTML preview](examples/the-magic-finger/director.html) · [Production JSON](examples/the-magic-finger/plan.json) |
 | *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](examples/kong-yiji/plan.json) |
 
-Download or clone the repository and open either HTML file in a browser. Players use Google's existing voice samples; generated recordings are not included. The supplied *The Magic Finger* EPUB has one continuous story rather than numbered chapters, so the example clearly identifies an opening excerpt ending at “BANG! BANG! BANG! BANG! went the guns.” rather than labeling it “Chapter 1.”
+Download or clone the repository and open any example HTML file in a browser. Players use Google's existing voice samples; generated recordings are not included. The supplied *The Magic Finger* EPUB has one continuous story rather than numbered chapters, so the example clearly identifies an opening excerpt ending at “BANG! BANG! BANG! BANG! went the guns.” rather than labeling it “Chapter 1.”
 
 ## Capabilities
 
@@ -88,7 +89,7 @@ For an installed skill, replace the script and plan paths with their installed l
 - [Directing](references/directing.md): text analysis, production choices, and faithful reading versus adaptation.
 - [Scripts and auditions](references/preview.md): readable previews, sample discovery, and optional line auditions.
 - [Dialogue and scene arrangement](references/arrangement.md): JSON contracts, mixing, and revision scope.
-- [Original dialogue example](assets/dialogue-plan.json): a compact native listener-reaction plan.
+- [Original dialogue example](examples/native-dialogue/plan.json): a compact native listener-reaction plan.
 
 `scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Full local work directories, recordings, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
 
