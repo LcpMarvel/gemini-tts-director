@@ -65,16 +65,82 @@
     {
       "id": "spelling",
       "source_text": "One day we were in class, and she was teaching us spelling. ‘Stand up,’ she said to me, ‘and spell cat.’\n\n‘That’s an easy one,’ I said. ‘K-a-t.’\n\n‘You are a stupid little girl!’ Mrs Winter said.\n\n‘I am not a stupid little girl!’ I cried. ‘I am a very nice little girl!’\n\n‘Go and stand in the corner,’ Mrs Winter said.",
-      "text": "One day we were in class, and she was teaching us spelling. ‘Stand up,’ she said to me, ‘and spell cat.’\n\n‘That’s an easy one,’ I said. ‘K-a-t.’\n\n‘You are a stupid little girl!’ Mrs Winter said.\n\n‘I am not a stupid little girl!’ I cried. ‘I am a very nice little girl!’\n\n‘Go and stand in the corner,’ Mrs Winter said.",
-      "voice": "Leda",
-      "style": "Give the teacher clipped authority and the girl bright certainty, then wounded defiance; keep narration lighter between their lines."
+      "speakers": {
+        "Girl": "Leda",
+        "MrsWinter": "Kore"
+      },
+      "turns": [
+        {
+          "speaker": "Girl",
+          "text": "One day we were in class, and she was teaching us spelling. ",
+          "style": "Conversational and lively; bright certainty turning to wounded defiance."
+        },
+        {
+          "speaker": "MrsWinter",
+          "text": "‘Stand up,’",
+          "style": "Clipped and stern, an impatient classroom command."
+        },
+        {
+          "speaker": "Girl",
+          "text": " she said to me, ",
+          "style": "Conversational and lively; bright certainty turning to wounded defiance."
+        },
+        {
+          "speaker": "MrsWinter",
+          "text": "‘and spell cat.’",
+          "style": "Clipped and stern, an impatient classroom command."
+        },
+        {
+          "speaker": "Girl",
+          "text": "\n\n‘That’s an easy one,’ I said. ‘K-a-t.’\n\n",
+          "style": "Conversational and lively; bright certainty turning to wounded defiance."
+        },
+        {
+          "speaker": "MrsWinter",
+          "text": "‘You are a stupid little girl!’",
+          "style": "Clipped and stern, an impatient classroom command."
+        },
+        {
+          "speaker": "Girl",
+          "text": " Mrs Winter said.\n\n‘I am not a stupid little girl!’ I cried. ‘I am a very nice little girl!’\n\n",
+          "style": "Conversational and lively; bright certainty turning to wounded defiance."
+        },
+        {
+          "speaker": "MrsWinter",
+          "text": "‘Go and stand in the corner,’",
+          "style": "Clipped and stern, an impatient classroom command."
+        },
+        {
+          "speaker": "Girl",
+          "text": " Mrs Winter said.",
+          "style": "Conversational and lively."
+        }
+      ]
     },
     {
       "id": "transformation",
       "source_text": "Then I got cross, and I saw red, and I put the Magic Finger on Mrs Winter good and strong, and almost at once…\n\nGuess what?\n\nWhiskers began growing out of her face! They were long black whiskers, just like the ones you see on a cat, only much bigger. And how fast they grew! Before we had time to think, they were out to her ears!\n\nOf course the whole class started screaming with laughter, and then Mrs Winter said, ‘Will you be so kind as to tell me what you find so madly funny, all of you?’\n\nAnd when she turned around to write something on the blackboard we saw that she had grown a tail as well! It was a huge bushy tail!\n\nI cannot begin to tell you what happened after that, but if any of you are wondering whether Mrs Winter is quite all right again now, the answer is No. And she never will be.",
-      "text": "Then I got cross, and I saw red, and I put the Magic Finger on Mrs Winter good and strong, and almost at once…\n\nGuess what?\n\nWhiskers began growing out of her face! They were long black whiskers, just like the ones you see on a cat, only much bigger. And how fast they grew! Before we had time to think, they were out to her ears!\n\nOf course the whole class started screaming with laughter, and then Mrs Winter said, ‘Will you be so kind as to tell me what you find so madly funny, all of you?’\n\nAnd when she turned around to write something on the blackboard we saw that she had grown a tail as well! It was a huge bushy tail!\n\nI cannot begin to tell you what happened after that, but if any of you are wondering whether Mrs Winter is quite all right again now, the answer is No. And she never will be.",
-      "voice": "Leda",
-      "style": "Build suspense, then delighted disbelief; sharpen the teacher’s question and let the final No land matter-of-factly."
+      "speakers": {
+        "Girl": "Leda",
+        "MrsWinter": "Kore"
+      },
+      "turns": [
+        {
+          "speaker": "Girl",
+          "text": "Then I got cross, and I saw red, and I put the Magic Finger on Mrs Winter good and strong, and almost at once…\n\nGuess what?\n\nWhiskers began growing out of her face! They were long black whiskers, just like the ones you see on a cat, only much bigger. And how fast they grew! Before we had time to think, they were out to her ears!\n\nOf course the whole class started screaming with laughter, and then Mrs Winter said, ",
+          "style": "Building suspense, then delighted disbelief; finish matter-of-factly."
+        },
+        {
+          "speaker": "MrsWinter",
+          "text": "‘Will you be so kind as to tell me what you find so madly funny, all of you?’",
+          "style": "Sharp and indignant, demanding an explanation."
+        },
+        {
+          "speaker": "Girl",
+          "text": "\n\nAnd when she turned around to write something on the blackboard we saw that she had grown a tail as well! It was a huge bushy tail!\n\nI cannot begin to tell you what happened after that, but if any of you are wondering whether Mrs Winter is quite all right again now, the answer is No. And she never will be.",
+          "style": "Delighted disbelief, then a matter-of-fact ending."
+        }
+      ]
     },
     {
       "id": "how-it-feels",

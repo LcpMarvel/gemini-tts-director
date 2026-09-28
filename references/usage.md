@@ -49,11 +49,14 @@ Optional fields: `sample_rate` (raw PCM defaults to 24,000 Hz, mono, signed 16-b
 
 ```sh
 python3 "$TTS" check --config route.json
+python3 "$TTS" voices --config route.json --output voice-library.json
 python3 "$TTS" speak --config route.json --text 'Hello.' --voice Kore --style 'Warm and natural' --out audio --dry-run
 python3 "$TTS" speak --config route.json --text-file script.txt --voice Kore --style 'Warm and natural' --out audio
 ```
 
 `check` verifies local configuration and whether the key is set. `--dry-run` shows the request body without network or key. Neither proves account access, model availability, passthrough behavior, or sound quality.
+
+`voices` is a read-only catalog lookup on a Gemini-compatible route. It retrieves all preset voice pages and joins known official sample URLs without generating audio. See [filters and preview fields](preview.md#voice-catalog-and-official-samples). It does not switch a speech provider to Google or manage custom voices.
 
 ## Production plan and revision
 
@@ -90,6 +93,10 @@ Failure or interruption preserves a `running`/`uncertain` state; the script does
 
 One failed clip stops that `render`. If authorized, use `--clip` for other unattempted independent clips; completed clips remain. Treat a dropped connection as uncertain, not proof of unsupported voice or exhausted quota. Retry only the failed/uncertain clips covered by authorization. `--new-take` is for intentional extra candidates, not normal recovery. Missing audio is an error: restore the file or explicitly regenerate. A structurally valid WAV still needs a listening check.
 
+For HTTP 429, inspect the account's actual quota and any retry guidance, then pace request starts within it. One local project allowed ten requests per minute; starts at least seven seconds apart completed the remaining work. This is an observed account limit, not a Gemini-wide constant. The executor has no pacing flag: an external loop can call `render --clip` sequentially with the same full plan. Honor existing retry authorization without asking again for each covered clip; preserve completed takes.
+
+HTTP 200 alone is not success. Check candidate finish reasons and usable audio. In the literary trial, two passages returned `OTHER` with no audio and an explicit provider copyright-filter message. Preserve the original text, report the missing sections, and stop repeating the same blocked request; do not change words or routes just to evade a filter. Failure does not establish zero cost. A partial export must identify omitted sections beside its player and in the reading copy; never present it as the complete work.
+
 ## Verification status
 
 As of 2026-09-28, a local mock HTTP server tested three request formats, audio handling, reuse, plan changes and stale-selection blocking, export durations, recovery, redirect blocking, scene overlap, gain, clipping prevention, and offline remix. These tests make no paid API request:
@@ -100,7 +107,7 @@ python3 -m unittest discover -s tests -v
 
 On that date Google Gemini 3.8 Flash TTS generated five short role lines plus four crowd tracks. The roughly 6.22-second local crowd mix was auditioned and accepted by the user. This does not validate other providers, every voice or tag, or broad listening quality.
 
-Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export. On 2026-09-28 the Google Gemini 3.8 Flash TTS route accepted the original dialogue example and returned one 11.96-second WAV. Speaker assignment, listener responses, and listening quality still await audition. Only the Gemini metadata route implements this joint request. It does not establish support on intermediary `speech` routes.
+Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export. On 2026-09-28 the original 11.96-second dialogue returned audio but the user heard no noticeable interruption. The revised 7.8-second native argument was accepted, as were the two classroom scenes with a separate teacher voice (79.72 seconds combined). See [the examples and listening distinction](arrangement.md#native-two-speaker-dialogue-and-listener-responses). Only the Gemini metadata route implements this joint request; these trials do not establish support on intermediary `speech` routes.
 
 Voice design/replication/management, streaming playback, Interactions, remote Batch, and Flex/Priority are outside this skill’s scope. Native Google documentation does not establish intermediary support.
 

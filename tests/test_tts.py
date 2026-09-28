@@ -22,12 +22,49 @@ spec.loader.exec_module(tts)
 
 
 class Flow(unittest.TestCase):
+    def test_voice_catalog_pages_and_official_samples(self):
+        c = {**tts.PROFILES['google'], 'provider': 'google'}
+        pages = [
+            {'voices': [{'id': 'Despina'}, {'id': 'en-us-bodi'}], 'next_page_token': 'next & page'},
+            {'voices': [{'id': 'Erinome'}, {'id': 'new-voice'}, {'id': 'Despina'}]},
+        ]
+        with patch.dict(os.environ, {'GEMINI_API_KEY': 'test-secret'}), patch.object(tts.urllib.request, 'build_opener') as opener:
+            response = opener.return_value.open.return_value.__enter__.return_value
+            response.read.side_effect = [json.dumps(page).encode() for page in pages]
+            response.headers = {'Content-Type': 'application/json'}
+            catalog = tts.voices(c, {'language_code': ['en-US', 'en-GB'], 'search': 'warm'})
+            calls = opener.return_value.open.call_args_list
+            self.assertEqual(len(calls), 2)
+            for call in calls:
+                request = call.args[0]
+                self.assertEqual(request.get_method(), 'GET')
+                self.assertIsNone(request.data)
+                self.assertNotIn('test-secret', request.full_url)
+                self.assertEqual(request.get_header('X-goog-api-key'), 'test-secret')
+                params = tts.urllib.parse.parse_qs(tts.urllib.parse.urlsplit(request.full_url).query)
+                self.assertEqual(params['language_code'], ['en-US', 'en-GB'])
+                self.assertEqual(params['type'], ['prebuilt'])
+            self.assertEqual(params['page_token'], ['next & page'])
+        by_id = {v['id']: v for v in catalog['voices']}
+        self.assertEqual(len(by_id), 4)
+        self.assertTrue(by_id['Despina']['sample_url'].endswith('/Despina.wav'))
+        self.assertTrue(by_id['en-us-bodi']['sample_url'].endswith('/daikon/en-us-bodi.wav'))
+        self.assertTrue(by_id['Erinome']['sample_url'].endswith('/Erinome.wav'))
+        self.assertIsNone(by_id['new-voice']['sample_url'])
+        self.assertEqual(by_id['new-voice']['sample_status'], 'unavailable')
+        with patch.object(tts, 'call', return_value=(json.dumps(pages[0]).encode(), 'application/json', None)):
+            with self.assertRaisesRegex(ValueError, 'page token'):
+                tts.voices(c)
+        with patch.object(tts, 'call', return_value=(b'{}', 'application/json', None)):
+            self.assertEqual(tts.voices(c, {'search': 'no match'})['voices'], [])
+
     def test_published_examples_stay_readable_and_offline(self):
         root = Path(__file__).parents[1]
         with tempfile.TemporaryDirectory() as folder, patch.object(tts, 'call', side_effect=AssertionError('Examples must stay offline')):
             cfg = Path(folder) / 'route.json'
             tts.save(cfg, {'provider': 'google', 'model': 'gemini-3.8-flash-tts'})
             for name, count in (('examples/native-dialogue/plan.json', 1), ('examples/kong-yiji/plan.json', 4),
+                                ('examples/native-dialogue/overlap-plan.json', 1),
                                 ('examples/the-magic-finger/plan.json', 13)):
                 result = tts.render(tts.config(cfg), tts.read(root / name), Path(folder) / 'audio', dry=True)
                 self.assertEqual(len(result['requests']), count)
@@ -36,7 +73,7 @@ class Flow(unittest.TestCase):
         page = (example / 'director.html').read_text()
         plan = tts.read(example / 'plan.json')
         self.assertTrue(plan['clips'][-1]['text'].endswith('BANG! BANG! BANG! BANG! went the guns.'))
-        self.assertNotIn('The ducks flew on.', '\n'.join(c['text'] for c in plan['clips']))
+        self.assertNotIn('The ducks flew on.', '\n'.join(c['source_text'] for c in plan['clips']))
         blocks = re.findall(r'<p class="spoken">(.*?)</p>', page, re.S)
         self.assertEqual(len(blocks), len(plan['clips']))
         for block, clip in zip(blocks, plan['clips']):
@@ -47,7 +84,13 @@ class Flow(unittest.TestCase):
                 else:
                     plain += html.unescape(part)
             self.assertEqual(plain, clip['source_text'])
-            self.assertEqual(plain, clip['text'])
+            spoken = ''.join(t['text'] for t in clip['turns']) if 'turns' in clip else clip['text']
+            self.assertEqual(plain, spoken)
+            if clip['id'] in ('spelling', 'transformation'):
+                self.assertEqual(clip['speakers'], {'Girl': 'Leda', 'MrsWinter': 'Kore'})
+                teacher_lines = [t['text'] for t in clip['turns'] if t['speaker'] == 'MrsWinter']
+                self.assertEqual(len(teacher_lines), 4 if clip['id'] == 'spelling' else 1)
+                self.assertTrue(all(line.startswith('‘') and line.endswith('’') for line in teacher_lines))
             self.assertEqual(events, clip.get('events', []))
             self.assertIn(clip['source_text'], (example / 'director.md').read_text())
 

@@ -49,6 +49,28 @@ Take your time,|Really?|I'm not upset.
 
 ## Recording status
 
-Generated locally with Google Gemini 3.8 Flash TTS on 2026-09-28 · 0:12. One joint WAV returned for both speakers. Listening quality awaits review; recordings are not bundled with this example. Changing either voice or any line requires a new take of the whole clip.
+Generated locally with Google Gemini 3.8 Flash TTS on 2026-09-28 · 0:12. One joint WAV returned for both speakers. V1 returned one joint WAV, but the user heard no noticeable interruption. V2 below was accepted after listening. Recordings are not bundled with this example. Changing either voice or any line requires a new take of the whole clip.
 
 After generation, listen for Sam saying “I’m listening” and Alex saying “Really?” while the leading voice stays coherent. Check that neither voice reads the bars or role labels aloud. This original dialogue was written for the example.
+
+## Let me finish · V2
+
+The same voices now argue: Alex continues through Sam’s interruptions, and Sam talks through Alex’s protest. Two listener segments sit inside each unfinished leading thought. This original alternative changes the scene; it is not a faithful rewrite of V1.
+
+[Production JSON](overlap-plan.json) · One native joint take · 7.8 seconds · User accepted on 2026-09-28 · No local overlap mixing.
+
+**Alex leads; Sam speaks inside the bars.**
+
+*Frustrated, speaking insistently at a brisk pace, continuing through the listener’s interruptions without yielding the floor.*
+
+```text
+I was trying to tell you |I know,| why I left early |I was there!| but you wouldn't let me finish.
+```
+
+**Sam leads; Alex speaks inside the bars.**
+
+*Defensive and quick, talking over the listener’s protest and continuing the sentence without waiting.*
+
+```text
+Because you keep saying |That's not| nobody told you |what I said!| when I called you twice.
+```

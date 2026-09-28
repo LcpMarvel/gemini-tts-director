@@ -42,7 +42,7 @@ The director chooses a production method from the text and character relationshi
 
 | Example | What it demonstrates | Files |
 | --- | --- | --- |
-| *About yesterday* — original dialogue | Two speakers respond inside each other’s turns using native listener reactions. | [Director’s script](examples/native-dialogue/director.md) · [HTML preview](examples/native-dialogue/director.html) · [Production JSON](examples/native-dialogue/plan.json) |
+| *About yesterday* — original dialogue | Gentle listener responses and a revised interruption example accepted after listening. | [Director’s script](examples/native-dialogue/director.md) · [HTML preview](examples/native-dialogue/director.html) · [Production JSON](examples/native-dialogue/plan.json) |
 | *The Magic Finger* — Roald Dahl | An English opening excerpt through the four gunshots: first-person narration, the classroom flashback, and the duck hunt. No invented listener reactions. | [Director's script](examples/the-magic-finger/director.md) · [HTML preview](examples/the-magic-finger/director.html) · [Production JSON](examples/the-magic-finger/plan.json) |
 | *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](examples/kong-yiji/plan.json) |
 
@@ -53,6 +53,7 @@ Download or clone the repository and open any example HTML file in a browser. Pl
 | Capability | How it works |
 | --- | --- |
 | Readable scripts and casting | Agent-authored Markdown/HTML, a compact cast table, and official voice samples |
+| Voice discovery | Paginated preset catalog queries, filters, and matching official preview URLs; no TTS |
 | Delivery and vocal events | Per-turn `style` plus positioned breaths, vocalizations, and pauses |
 | Native dialogue | Two speakers in one clip, with ordered turns and optional listener `\|reactions\|` |
 | Crowds | Separate takes layered with scene offsets, relative gain, and peak protection |
@@ -83,6 +84,17 @@ python3 scripts/tts.py render --config /path/to/route.json --plan examples/the-m
 
 For an installed skill, replace the script and plan paths with their installed locations. Actual generation requires the provider's key environment variable and user authorization. Keys never belong in production JSON or HTML. Providers charge for TTS; see [Usage and routing](references/usage.md) for configuration, generation, and revision commands.
 
+## Find voices and preview samples
+
+With `GEMINI_API_KEY` set and a Google route configured, query the preset library without generating audio:
+
+```sh
+python3 scripts/tts.py voices --config /path/to/route.json --output voices.json
+python3 scripts/tts.py voices --config /path/to/route.json --language-code en-GB --gender female --search warm --output filtered-voices.json
+```
+
+The command follows every page and preserves each exact voice ID. Known official samples appear as `sample_url`; voices without a known sample remain available with `sample_url: null`. The bundled mapping covers 70 verified sample URLs, not the whole library. See [voice discovery](references/preview.md#voice-catalog-and-official-samples) for all filters and how to extend sample coverage.
+
 ## Documentation
 
 - [Skill entry point](SKILL.md): instructions for the directing agent.
@@ -90,6 +102,7 @@ For an installed skill, replace the script and plan paths with their installed l
 - [Scripts and auditions](references/preview.md): readable previews, sample discovery, and optional line auditions.
 - [Dialogue and scene arrangement](references/arrangement.md): JSON contracts, mixing, and revision scope.
 - [Original dialogue example](examples/native-dialogue/plan.json): a compact native listener-reaction plan.
+- [Interruption example](examples/native-dialogue/overlap-plan.json): the revised native argument accepted after listening.
 
 `scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Full local work directories, recordings, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
 
@@ -101,4 +114,4 @@ python3 -m unittest discover -s tests -v
 
 Tests use mock responses and a local HTTP server, not paid TTS. They cover request mapping, take reuse, stale selections, native dialogue, mixing, export, and error recovery.
 
-The Google route has generated five character auditions and four crowd stems in a local trial. The Google route also accepted the native dialogue example and returned one WAV; speaker assignment, listener responses, and listening quality still await audition. Model names, voice availability, and provider capabilities can change—check the route you intend to use.
+The Google route has generated five character auditions and four crowd stems in a local trial. The original native dialogue returned audio but did not convey interruption to the user; the revised argument and separately voiced classroom scenes were accepted after listening. These are specific listening results, not guarantees for other texts or routes. Model names, voice availability, and provider capabilities can change—check the route you intend to use.

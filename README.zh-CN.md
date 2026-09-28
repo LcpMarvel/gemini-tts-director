@@ -43,6 +43,7 @@ npx skills add LcpMarvel/gemini-tts-director --skill gemini-tts-director --agent
 | 能力 | 实现方式 |
 | --- | --- |
 | 导演稿与选声 | Agent 制作 Markdown/HTML、角色表及官方样本试听 |
+| 音色查询 | 分页查询预置音色、按特征筛选并匹配官方试听地址，不调用 TTS |
 | 语气与动作 | 逐段 style 与定位的人声、呼吸、停顿标签 |
 | 原生双人 | 同一 clip 内的 speakers/turns，支持听者 `\|回应\|` |
 | 群声 | 多条录音按 scenes 错位叠加、调音量、避免削波 |
@@ -73,6 +74,17 @@ python3 scripts/tts.py render --config /path/to/route.json --plan examples/nativ
 
 真实生成需要相应接入商的 Key 环境变量及用户授权。Key 不写入制作 JSON 或 HTML；TTS 费用由接入商收取。具体配置、生成和返工命令见 [使用与接入](references/usage.md)。
 
+## 查询音色与试听
+
+设置 `GEMINI_API_KEY` 并配置 Google 路由后，可以查询预置音色，不生成音频：
+
+```sh
+python3 scripts/tts.py voices --config /path/to/route.json --output voices.json
+python3 scripts/tts.py voices --config /path/to/route.json --language-code en-GB --gender female --search warm --output filtered-voices.json
+```
+
+脚本会读取所有分页，保留真实音色 ID，并关联已确认的官方 `sample_url`。暂无样本的音色仍可选择，其 `sample_url` 为 `null`。附带的 70 条试听地址是已验证快照，不是音色数量上限。完整筛选参数和样本扩充方法见 [音色查询与预览](references/preview.md#voice-catalog-and-official-samples)。
+
 ## 文档与示例
 
 - [原生双人示例](examples/native-dialogue/director.md)：原创英文短对话，标清双方的主句与听者回应；含 HTML 和制作 JSON。
@@ -83,8 +95,9 @@ python3 scripts/tts.py render --config /path/to/route.json --plan examples/nativ
 - [导演稿与试听](references/preview.md)：可读页面、音色样本和可选试音。
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
 - [双人示例](examples/native-dialogue/plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
+- [插话 V2](examples/native-dialogue/overlap-plan.json)：已获用户试听认可的原生双人争论片段。
 
-下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。播放器只播放官方已有音色样本，没有为该示例生成 TTS。
+下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。公开页面播放官方已有音色样本；本地已生成试听录音，录音不随仓库发布。英文示例仍缺两段被供应商过滤的录音，不能当作完整成品。
 
 `scripts/` 是执行器，`tests/` 是离线集成测试，`assets/` 保存可复用示例与官方样本地址。`examples/` 是整理后的公开导演稿；完整工作目录、录音、密钥和本地安装副本不随仓库发布。
 
@@ -96,4 +109,4 @@ python3 -m unittest discover -s tests -v
 
 测试使用模拟响应和本机 HTTP 服务，不调用付费 TTS。覆盖请求格式、候选复用、改稿后选片、原生双人、混音、导出和错误恢复。
 
-Google 路由已实际生成过五个角色短句与四条群声分轨；原生双人已通过离线验证，Google 接口也已接受示例请求并返回一条 WAV；角色归属、听者回应和听感仍待试听。模型名称、音色和供应商能力会变化，使用前按当前接入方式核对。
+Google 路由已实际生成过五个角色短句与四条群声分轨。最初的双人示例插话不明显；改过的原生争论片段和老师使用独立音色的课堂片段，均获用户试听认可。这些是具体片段的结果，不代表所有文本或路由的效果。模型名称、音色和供应商能力会变化，使用前按当前接入方式核对。

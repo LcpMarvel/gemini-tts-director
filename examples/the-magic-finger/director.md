@@ -9,10 +9,11 @@ A child tells the story directly to the listener: brisk, certain of her own judg
 | Role | Voice | Direction | Official sample |
 | --- | --- | --- | --- |
 | The girl · narrator | Leda | Direct, lively, and unforced. | [Listen](https://www.gstatic.com/aistudio/voices/samples/Leda.wav) |
+| Mrs Winter | Kore | Stern, clipped classroom authority. | [Listen](https://www.gstatic.com/aistudio/voices/samples/Kore.wav) |
 
 ## Reading
 
-Single-speaker literary reading. Leda carries the girl’s narration and lightly distinguishes Mrs Winter and Mr Gregg within quoted dialogue. The classroom exchange is sequential, with no listener reactions added. The four BANGs are spoken source words, not generated gunshot effects.
+Leda voices the girl and her first-person narration. Mrs Winter’s direct speech uses Kore in two native dialogue scenes; narration such as “Mrs Winter said” stays with Leda. Mr Gregg’s brief quotation remains part of the solo reading. The classroom exchange is sequential, with no listener reactions added. The four BANGs are spoken source words, not generated gunshot effects.
 
 Opening excerpt: the first 50 nonempty prose paragraphs of the supplied EPUB, ending exactly with “BANG! BANG! BANG! BANG! went the guns.” The EPUB contains one continuous story, not numbered chapters; this is not a publisher-defined Chapter 1.
 
@@ -94,6 +95,8 @@ Poor old Mrs Winter.
 
 ## The spelling lesson
 
+Girl and narration: **Leda** · Mrs Winter’s quoted commands: **Kore**.
+
 *Give the teacher clipped authority and the girl bright certainty, then wounded defiance; keep narration lighter between their lines.*
 
 One day we were in class, and she was teaching us spelling. ‘Stand up,’ she said to me, ‘and spell cat.’
@@ -107,6 +110,8 @@ One day we were in class, and she was teaching us spelling. ‘Stand up,’ she 
 ‘Go and stand in the corner,’ Mrs Winter said.
 
 ## Whiskers and a tail
+
+Girl and narration: **Leda** · Mrs Winter’s question: **Kore**.
 
 *Build suspense, then delighted disbelief; sharpen the teacher’s question and let the final No land matter-of-factly.*
 
@@ -183,3 +188,5 @@ Text: *The Magic Finger* by Roald Dahl, from the user-supplied EPUB. Director’
 ## Recording status
 
 Partial local recording: 11/13 takes completed. Missing sections: hunting, duck-hunt. Gemini filtered output during the trial; this is not a complete reading. Recordings are not bundled with this example.
+
+Classroom V2: Mrs Winter uses Kore; the girl and narration remain Leda. Two joint recordings completed locally; audio is not bundled. User accepted the classroom V2 recording on 2026-09-28.

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Gemini TTS execution only. Python 3.10+, standard library."""
+"""Gemini TTS execution and voice catalog lookup. Python 3.10+, standard library."""
 import argparse
 from array import array
 import base64
 import copy
+from datetime import datetime, timezone
 import fcntl
 import hashlib
 import io
@@ -176,7 +177,7 @@ def call(c, url, body):
     require(secret, f"Environment variable {c['key_env']} is not set")
     headers = {'Content-Type': 'application/json'}
     headers['Authorization' if c['auth'] == 'bearer' else 'x-goog-api-key'] = ('Bearer ' if c['auth'] == 'bearer' else '') + secret
-    req = urllib.request.Request(url, json.dumps(body).encode(), headers)
+    req = urllib.request.Request(url, None if body is None else json.dumps(body).encode(), headers)
     try:
         with urllib.request.build_opener(NoRedirect()).open(req, timeout=180) as response:
             data = response.read(128 * 1024 * 1024 + 1)
@@ -186,7 +187,41 @@ def call(c, url, body):
         # Never print upstream bodies: they can echo credentials or private input.
         raise RuntimeError(f'HTTP {e.code}; not retried; check your provider dashboard') from None
     except (urllib.error.URLError, TimeoutError, OSError):
+        if body is None:
+            raise RuntimeError('Catalog request did not complete; not retried automatically') from None
         raise RuntimeError('Network request did not complete; it may have been billed and was not retried automatically') from None
+
+
+def voices(c, filters=None):
+    require(c['protocol'] == 'gemini', 'Voice catalog lookup requires a Gemini-compatible route; no automatic provider switch')
+    filters = filters or {}
+    allowed = {'language_code', 'region_code', 'accent', 'gender', 'pitch', 'persona', 'context', 'search'}
+    require(not set(filters) - allowed, 'Unsupported voice catalog filter')
+    samples = read(Path(__file__).resolve().parents[1] / 'assets/voice-samples.json')
+    source = c['base_url'] + '/voices'
+    params = {'type': 'prebuilt', 'page_size': 1000, **filters}
+    result, seen_tokens, seen_ids, pages = [], set(), set(), 0
+    while True:
+        data, _, _ = call(c, source + '?' + urllib.parse.urlencode(params, doseq=True), None)
+        page = json.loads(data)
+        require(isinstance(page, dict) and isinstance(page.get('voices', []), list), 'Invalid voice catalog response')
+        pages += 1
+        for voice in page.get('voices', []):
+            require(isinstance(voice, dict) and isinstance(voice.get('id'), str) and voice['id'].strip(), 'Voice catalog entry is missing its exact id')
+            if voice['id'] in seen_ids:
+                continue
+            seen_ids.add(voice['id'])
+            sample = samples['samples'].get(voice['id'].casefold())
+            result.append({**voice, 'sample_url': sample, 'sample_status': 'available' if sample else 'unavailable'})
+        token = page.get('next_page_token', page.get('nextPageToken'))
+        if not token:
+            break
+        require(isinstance(token, str) and token not in seen_tokens, 'Catalog repeated or returned an invalid page token')
+        seen_tokens.add(token)
+        params['page_token'] = token
+    return {'source': source, 'fetched_at': datetime.now(timezone.utc).isoformat(),
+            'filter': {'type': 'prebuilt', **filters}, 'pages': pages,
+            'samples_checked_at': samples['checked_at'], 'voices': result}
 
 
 def wav_data(data, mime, rate):
@@ -386,6 +421,12 @@ def export(directory, output, plan=None):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest='command', required=True)
+    q = sub.add_parser('voices', help='List preset voices and attach known official samples; no TTS')
+    q.add_argument('--config', required=True)
+    q.add_argument('--output', help='Save catalog JSON instead of printing it')
+    for field in ('language-code', 'region-code', 'accent', 'gender', 'pitch', 'persona', 'context'):
+        q.add_argument('--' + field, action='append')
+    q.add_argument('--search')
     for name in ('check', 'speak', 'render'):
         q = sub.add_parser(name)
         q.add_argument('--config', required=True)
@@ -414,6 +455,14 @@ def main():
             q.add_argument('--output', required=True)
             q.add_argument('--plan', help='Change scene arrangement using selected takes without calling TTS')
     a = p.parse_args()
+    if a.command == 'voices':
+        filters = {key: value for key, value in vars(a).items() if key not in ('command', 'config', 'output') and value is not None}
+        result = voices(config(a.config), filters)
+        if a.output:
+            save(a.output, result)
+            return {'catalog': str(Path(a.output).resolve()), 'voices': len(result['voices']),
+                    'with_samples': sum(v['sample_url'] is not None for v in result['voices'])}
+        return result
     if a.command in ('check', 'speak', 'render'):
         c = config(a.config)
         if a.command == 'check':

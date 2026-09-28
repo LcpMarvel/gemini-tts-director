@@ -34,7 +34,16 @@ The [sample URL catalog](../assets/voice-samples.json) records 70 official stati
 
 Reuse the catalog first. To add a voice, observe its actual resource URL through AI Studio's **Play voice sample**, then verify that the discovered target returns audio. Do not click a preview control that generates content. Never assume every extended voice has a `daikon/{id}.wav` file; show “No sample available” when absent rather than generating one without authorization.
 
-For a truly complete live catalog, an authorized Gemini key can call `GET https://generativelanguage.googleapis.com/v1beta/voices?type=prebuilt&page_size=1000`, following each next-page token with `page_token`. Preserve the real voice ID, source, and retrieval date. Catalog lookup authorization is distinct from generation authorization. Reuse an existing catalog when sufficient. The current script has no voice catalog command; do not invent one.
+For a live preset catalog, use the bundled command with the user's authorized Gemini-compatible route:
+
+```sh
+python3 "$SKILL_DIR/scripts/tts.py" voices --config route.json --output voice-library.json
+python3 "$SKILL_DIR/scripts/tts.py" voices --config route.json --language-code en-US --language-code en-GB --gender female --search warm --output voice-library-filtered.json
+```
+
+It sends only `GET /voices`, requests `type=prebuilt`, and follows every page token. Repeat `--language-code`, `--region-code`, `--accent`, `--gender`, `--pitch`, `--persona`, or `--context` for alternatives within a filter; different filters combine. `--search` matches display names and descriptions. No TTS is generated and no voice is created or changed. Reuse an existing catalog when sufficient; catalog lookup authorization is distinct from generation authorization.
+
+The output preserves exact IDs and provider metadata, adds `sample_url` and `sample_status`, and records the source, fetch date, filters, and sample catalog verification date. Sample matching uses `assets/voice-samples.json` by ID, preserving URL case; it does not infer identity from a display name or probe guessed URLs. Feed these entries into the voice chooser, using `sample_url` for its player. Unknown samples remain `null`/`unavailable` and the voice remains selectable. Add newly observed, verified AI Studio URLs to the sample catalog to extend this mapping; the 70 bundled URLs are not a selection limit. Lookup does not recheck sample URLs or prove TTS route compatibility.
 
 Send a key only in the server-side `x-goog-api-key` header, never HTML, URLs, CLI arguments, or catalog snapshots. If the user points to a key file, read only the needed key, without sourcing or printing the file. The voice catalog omitting a preset sample URL does not imply no static sample exists. A voice's language metadata does not prove the model can speak only those languages.
 

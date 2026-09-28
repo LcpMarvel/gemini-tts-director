@@ -22,7 +22,7 @@ Keep the source, actual spoken words, stable character voice, current-turn perfo
 
 For “You finally came home,” relief might call for one soft sigh before the line and a style such as “relieved after a long wait; low volume, no blame.” It does not require adding “oh.” Disappointment calls for a different acting direction, not merely more volume.
 
-- **Identity:** bind each role to a preset voice or stored voice ID available on the route. Do not randomly change it line by line.
+- **Identity:** bind each role to a preset voice or stored voice ID available on the route. Do not randomly change it line by line. “Read the teacher sternly” changes delivery, not voice identity. When distinct character voices are intended, assign their quoted words to actual speaker bindings and keep reporting clauses with the narrator; verify these bindings in the compiled request.
 - **Sustained delivery:** describe tiredness, whispering, restrained excitement, pace, or loudness in short free-form `style` text.
 - **Momentary actions:** place sighs, breaths, laughter, and pauses in `events`, with offsets in the untagged spoken text. Events do not change `source_text`.
 - **Reading copy:** show “tone” and “actions” separately. Identify who acts and where. Every displayed action must correspond to an event in the JSON and must not conflict with the style. An action is optional; a written mention of laughing need not become audible laughter. Do not pass prose annotations as spoken text or event tags.
@@ -37,6 +37,8 @@ Gemini 3.8 separates style and events. Native Google, OpenRouter, and AIHubMix m
 Choose [native dialogue or scene arrangement](arrangement.md) according to the text: native dialogue makes one connected two-person clip; separate per-turn WAVs permit focused revisions; crowd voices are generated separately and layered locally. Keep a long continuous passage by the same speaker together when possible rather than splitting at every punctuation mark. If a provider length limit forces division, split at a meaningful boundary.
 
 Use short, concrete Gemini 3.8 style prompts. Voice identity belongs to `voice`, so avoid repeating a character biography or saying “keep the same voice” every turn. User-facing direction may be richer, but do not copy the whole analysis into each TTS request.
+
+In [The Magic Finger](../examples/the-magic-finger/plan.json), the girl is also the narrator: both use Leda, while Mrs Winter's direct speech uses Kore in two joint scenes. Only those two scenes needed rerecording when the single-voice version failed to distinguish the teacher; the user accepted the revision. These are example choices, not required voices. After splitting source prose into turns, check that their ordered text reconstructs the original passage, including reporting clauses.
 
 ## Revision and delivery
 
