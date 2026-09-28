@@ -1,6 +1,6 @@
 # The Magic Finger — director’s script
 
-Roald Dahl · Opening excerpt · Partial recording · Audio not bundled
+Roald Dahl · Opening excerpt · Partial recording · MP3 listening copies included
 
 A child tells the story directly to the listener: brisk, certain of her own judgment, and suddenly less certain when her anger has consequences. Keep it intimate rather than performing a cartoon child.
 
@@ -187,6 +187,12 @@ Text: *The Magic Finger* by Roald Dahl, from the user-supplied EPUB. Director’
 
 ## Recording status
 
-Partial local recording: 11/13 takes completed. Missing sections: hunting, duck-hunt. Gemini filtered output during the trial; this is not a complete reading. Recordings are not bundled with this example.
+Partial local recording: 11/13 takes completed. Missing sections: hunting, duck-hunt. Gemini filtered output during the trial; this is not a complete reading. MP3 listening copies are included.
 
-Classroom V2: Mrs Winter uses Kore; the girl and narration remain Leda. Two joint recordings completed locally; audio is not bundled. User accepted the classroom V2 recording on 2026-09-28.
+Classroom V2: Mrs Winter uses Kore; the girl and narration remain Leda. Two joint recordings completed locally; MP3 listening copies are included. User accepted the classroom V2 recording on 2026-09-28.
+
+## Listen
+
+[The Magic Finger · Classroom · 1:20](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-classroom) · [MP3](../../docs/audio/magic-finger-classroom.mp3)
+
+[The Magic Finger · Partial reading · 4:09](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-partial) · [MP3](../../docs/audio/magic-finger-partial.mp3)

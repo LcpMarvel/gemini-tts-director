@@ -8,6 +8,21 @@ The skill supports narration, separate character takes, native two-speaker dialo
 
 Use your own voice IDs or ask the director to recommend voices; availability depends on your route. The skill focuses on scripts, performance, generation, revision, and local assembly. Voice creation and account management, streaming playback, Interactions, remote Batch, and service-tier management are outside its scope.
 
+## Listen
+
+[Open the listening page](https://lcpmarvel.github.io/gemini-tts-director/) to play the generated recordings or download MP3s.
+
+| Recording | Duration | Listen |
+| --- | --- | --- |
+| Let me finish | 0:08 | [▶ Play](https://lcpmarvel.github.io/gemini-tts-director/#native-dialogue) |
+| Kong Yiji · Crowd | 0:06 | [▶ Play](https://lcpmarvel.github.io/gemini-tts-director/#kong-yiji-crowd) |
+| Kong Yiji · Full reading | 10:44 | [▶ Play](https://lcpmarvel.github.io/gemini-tts-director/#kong-yiji-full) |
+| The Magic Finger · Classroom | 1:20 | [▶ Play](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-classroom) |
+| The Magic Finger · Partial reading | 4:09 | [▶ Play](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-partial) |
+
+The Magic Finger partial reading omits `hunting` and `duck-hunt`; it is not a complete reading.
+
+
 ## Install
 
 Using [vercel-labs/skills](https://github.com/vercel-labs/skills):
@@ -46,7 +61,7 @@ The director chooses a production method from the text and character relationshi
 | *The Magic Finger* — Roald Dahl | An English opening excerpt through the four gunshots: first-person narration, the classroom flashback, and the duck hunt. No invented listener reactions. | [Director's script](examples/the-magic-finger/director.md) · [HTML preview](examples/the-magic-finger/director.html) · [Production JSON](examples/the-magic-finger/plan.json) |
 | *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](examples/kong-yiji/plan.json) |
 
-Download or clone the repository and open any example HTML file in a browser. Players use Google's existing voice samples; generated recordings are not included. The supplied *The Magic Finger* EPUB has one continuous story rather than numbered chapters, so the example clearly identifies an opening excerpt ending at “BANG! BANG! BANG! BANG! went the guns.” rather than labeling it “Chapter 1.”
+Download or clone the repository and open any example HTML file in a browser. Players include official voice samples and generated MP3 listening copies from `docs/audio/`. The supplied *The Magic Finger* EPUB has one continuous story rather than numbered chapters, so the example clearly identifies an opening excerpt ending at “BANG! BANG! BANG! BANG! went the guns.” rather than labeling it “Chapter 1.”
 
 ## Capabilities
 
@@ -103,7 +118,7 @@ The command follows every page and preserves each exact voice ID. Known official
 - [Dialogue and scene arrangement](references/arrangement.md): JSON contracts, mixing, and revision scope.
 - [Interruption example](examples/native-dialogue/plan.json): the revised native argument accepted after listening.
 
-`scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Full local work directories, recordings, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
+`scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Selected MP3 listening copies live in `docs/audio/`; full local work directories, original WAVs, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
 
 ## Validation
 

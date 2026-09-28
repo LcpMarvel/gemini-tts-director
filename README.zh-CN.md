@@ -8,6 +8,21 @@
 
 你可以直接指定音色 ID，也可以让导演推荐；可用性取决于所选接口。这个 skill 聚焦导演稿、表演、生成、返工和本地拼接，不负责创建或管理音色，也不提供流式播放、Interactions、远程 Batch 或服务档位管理。
 
+## 试听
+
+[打开试听页](https://lcpmarvel.github.io/gemini-tts-director/)，直接播放已生成的录音，也可下载 MP3。
+
+| 音频 | 时长 | 试听 |
+| --- | --- | --- |
+| 双人插话 · Let me finish | 0:08 | [▶ 播放](https://lcpmarvel.github.io/gemini-tts-director/#native-dialogue) |
+| 孔乙己 · 群声片段 | 0:06 | [▶ 播放](https://lcpmarvel.github.io/gemini-tts-director/#kong-yiji-crowd) |
+| 孔乙己 · 整篇朗读 | 10:44 | [▶ 播放](https://lcpmarvel.github.io/gemini-tts-director/#kong-yiji-full) |
+| The Magic Finger · 双音色课堂 | 1:20 | [▶ 播放](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-classroom) |
+| The Magic Finger · 部分朗读（缺两段） | 4:09 | [▶ 播放](https://lcpmarvel.github.io/gemini-tts-director/#magic-finger-partial) |
+
+Magic Finger 的部分朗读缺少 `hunting`、`duck-hunt` 两段；不是完整作品。
+
+
 ## 安装
 
 使用 [vercel-labs/skills](https://github.com/vercel-labs/skills)：
@@ -96,9 +111,9 @@ python3 scripts/tts.py voices --config /path/to/route.json --language-code en-GB
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
 - [双人示例](examples/native-dialogue/plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
 
-下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。公开页面播放官方已有音色样本；本地已生成试听录音，录音不随仓库发布。英文示例仍缺两段被供应商过滤的录音，不能当作完整成品。
+下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。公开页面包含官方音色样本及已生成录音的 MP3 试听版。英文示例仍缺两段被供应商过滤的录音，不能当作完整成品。
 
-`scripts/` 是执行器，`tests/` 是离线集成测试，`assets/` 保存可复用示例与官方样本地址。`examples/` 是整理后的公开导演稿；完整工作目录、录音、密钥和本地安装副本不随仓库发布。
+`scripts/` 是执行器，`tests/` 是离线集成测试，`assets/` 保存可复用示例与官方样本地址。`examples/` 是整理后的公开导演稿；`docs/audio/` 保存精选 MP3 试听版；完整工作目录、原始 WAV、密钥和本地安装副本不随仓库发布。
 
 ## 验证
 

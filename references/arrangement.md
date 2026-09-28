@@ -4,7 +4,7 @@ First deliver reviewable JSON. Generation and postproduction both follow it. `cl
 
 ## Native two-speaker dialogue and listener responses
 
-Choose joint performance only after [reading the text and relationships](directing.md#read-the-text-before-choosing-a-mode). The [complete dialogue plan](../examples/native-dialogue/plan.json) is an original example recorded locally through the Google route; audio is not bundled:
+Choose joint performance only after [reading the text and relationships](directing.md#read-the-text-before-choosing-a-mode). The [complete dialogue plan](../examples/native-dialogue/plan.json) is an original example recorded locally through the Google route; an MP3 listening copy is included in `docs/audio/`:
 
 ```json
 {

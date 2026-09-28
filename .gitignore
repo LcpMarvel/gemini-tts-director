@@ -22,3 +22,6 @@ __pycache__/
 .venv/
 node_modules/
 .DS_Store
+
+# Deliberately published listening copies
+!/docs/audio/*.mp3

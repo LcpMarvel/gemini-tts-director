@@ -55,4 +55,8 @@ Because you keep saying |That's not| nobody told you |what I said!| when I calle
 
 ## Recording status
 
-Generated locally with Google Gemini 3.8 Flash TTS on 2026-09-28: one 7.8-second joint WAV, with no local overlap mixing. The user accepted this recording after listening. Audio is not bundled. Changing either voice or any line requires a new take of the whole clip.
+Generated locally with Google Gemini 3.8 Flash TTS on 2026-09-28: one 7.8-second joint WAV, with no local overlap mixing. The user accepted this recording after listening. An MP3 listening copy is included. Changing either voice or any line requires a new take of the whole clip.
+
+## Listen
+
+[Let me finish · 0:08](https://lcpmarvel.github.io/gemini-tts-director/#native-dialogue) · [MP3](../../docs/audio/native-dialogue.mp3)

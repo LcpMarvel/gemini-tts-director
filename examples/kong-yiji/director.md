@@ -33,6 +33,10 @@ The narrator finishes before the crowd scene begins. Offsets apply to file start
 
 ## Recording status
 
-A prior version with the same Chinese lines, voices, and arrangement was generated and accepted in a local listening trial. Its direction was written in Chinese. This public plan translates the direction into English and has not been regenerated; no local recordings are included.
+A prior version with the same Chinese lines, voices, and arrangement was generated and accepted in a local listening trial. Its direction was written in Chinese. This public plan translates the direction into English and has not been regenerated; an MP3 of the accepted earlier recording is included.
 
 Original Chinese wording is retained. All instructions and labels are in English; official samples are voice demonstrations, not this performance.
+
+## Listen
+
+[Kong Yiji · Crowd · 0:06](https://lcpmarvel.github.io/gemini-tts-director/#kong-yiji-crowd) · [MP3](../../docs/audio/kong-yiji-crowd.mp3)
