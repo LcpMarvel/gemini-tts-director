@@ -73,7 +73,7 @@ python3 scripts/tts.py render --config /path/to/route.json --plan assets/dialogu
 
 ## 文档与示例
 
-- [英文文学示例](examples/the-magic-finger/director.md)：《The Magic Finger》开篇场景，独白与局部动作。
+- [英文文学示例](examples/the-magic-finger/director.md)：《The Magic Finger》开篇至四声枪响，包含课堂回忆与打猎段落。
 - [中文文学示例](examples/kong-yiji/director.md)：《孔乙己》的错位群声，保留中文原句，导演说明为英文。
 - [Skill 入口](SKILL.md)：给 Agent 的执行指引。
 - [导演方法](references/directing.md)：文本判断、表演选择、原文与改编边界。
@@ -82,7 +82,7 @@ python3 scripts/tts.py render --config /path/to/route.json --plan assets/dialogu
 - [双人示例](assets/dialogue-plan.json)、[群声示例](assets/crowd-plan.json)：可直接 dry-run 的制作稿。
 - [产品需求](PRD.md)：已实现范围和后续目标。
 
-下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 19 个非空段落，共 6 段制作计划，明确标为开篇场景。播放器只播放官方已有音色样本，没有为该示例生成 TTS。
+下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。播放器只播放官方已有音色样本，没有为该示例生成 TTS。
 
 `scripts/` 是执行器，`tests/` 是离线集成测试，`assets/` 保存可复用示例与官方样本地址。`examples/` 是整理后的公开导演稿；完整工作目录、录音、密钥和本地安装副本不随仓库发布。
 

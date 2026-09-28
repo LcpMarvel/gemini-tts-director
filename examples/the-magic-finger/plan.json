@@ -1,5 +1,5 @@
 {
-  "title": "The Magic Finger — opening scene",
+  "title": "The Magic Finger — opening excerpt",
   "clips": [
     {
       "id": "neighbours",
@@ -54,6 +54,55 @@
       "text": "Oh, dear! Oh, dear! I even put it on Mrs Gregg, who wasn’t there. I put it on the whole Gregg family.",
       "voice": "Leda",
       "style": "The anger drains into dismay; the repeated opening comes quickly, then finish more quietly."
+    },
+    {
+      "id": "mrs-winter",
+      "source_text": "For months I had been telling myself that I would never put the Magic Finger upon anyone again – not after what happened to my teacher, old Mrs Winter.\n\nPoor old Mrs Winter.",
+      "text": "For months I had been telling myself that I would never put the Magic Finger upon anyone again – not after what happened to my teacher, old Mrs Winter.\n\nPoor old Mrs Winter.",
+      "voice": "Leda",
+      "style": "A rueful aside; ease into the memory without making the regret sentimental."
+    },
+    {
+      "id": "spelling",
+      "source_text": "One day we were in class, and she was teaching us spelling. ‘Stand up,’ she said to me, ‘and spell cat.’\n\n‘That’s an easy one,’ I said. ‘K-a-t.’\n\n‘You are a stupid little girl!’ Mrs Winter said.\n\n‘I am not a stupid little girl!’ I cried. ‘I am a very nice little girl!’\n\n‘Go and stand in the corner,’ Mrs Winter said.",
+      "text": "One day we were in class, and she was teaching us spelling. ‘Stand up,’ she said to me, ‘and spell cat.’\n\n‘That’s an easy one,’ I said. ‘K-a-t.’\n\n‘You are a stupid little girl!’ Mrs Winter said.\n\n‘I am not a stupid little girl!’ I cried. ‘I am a very nice little girl!’\n\n‘Go and stand in the corner,’ Mrs Winter said.",
+      "voice": "Leda",
+      "style": "Give the teacher clipped authority and the girl bright certainty, then wounded defiance; keep narration lighter between their lines."
+    },
+    {
+      "id": "transformation",
+      "source_text": "Then I got cross, and I saw red, and I put the Magic Finger on Mrs Winter good and strong, and almost at once…\n\nGuess what?\n\nWhiskers began growing out of her face! They were long black whiskers, just like the ones you see on a cat, only much bigger. And how fast they grew! Before we had time to think, they were out to her ears!\n\nOf course the whole class started screaming with laughter, and then Mrs Winter said, ‘Will you be so kind as to tell me what you find so madly funny, all of you?’\n\nAnd when she turned around to write something on the blackboard we saw that she had grown a tail as well! It was a huge bushy tail!\n\nI cannot begin to tell you what happened after that, but if any of you are wondering whether Mrs Winter is quite all right again now, the answer is No. And she never will be.",
+      "text": "Then I got cross, and I saw red, and I put the Magic Finger on Mrs Winter good and strong, and almost at once…\n\nGuess what?\n\nWhiskers began growing out of her face! They were long black whiskers, just like the ones you see on a cat, only much bigger. And how fast they grew! Before we had time to think, they were out to her ears!\n\nOf course the whole class started screaming with laughter, and then Mrs Winter said, ‘Will you be so kind as to tell me what you find so madly funny, all of you?’\n\nAnd when she turned around to write something on the blackboard we saw that she had grown a tail as well! It was a huge bushy tail!\n\nI cannot begin to tell you what happened after that, but if any of you are wondering whether Mrs Winter is quite all right again now, the answer is No. And she never will be.",
+      "voice": "Leda",
+      "style": "Build suspense, then delighted disbelief; sharpen the teacher’s question and let the final No land matter-of-factly."
+    },
+    {
+      "id": "how-it-feels",
+      "source_text": "The Magic Finger is something I have been able to do all my life.\n\nI can’t tell you just how I do it, because I don’t even know myself.\n\nBut it always happens when I get cross, when I see red…\n\nThen I get very, very hot all over…\n\nThen the tip of the forefinger of my right hand begins to tingle most terribly…\n\nAnd suddenly a sort of flash comes out of me, a quick flash, like something electric.\n\nIt jumps out and touches the person who has made me cross…\n\nAnd after that the Magic Finger is upon him or her, and things begin to happen…",
+      "text": "The Magic Finger is something I have been able to do all my life.\n\nI can’t tell you just how I do it, because I don’t even know myself.\n\nBut it always happens when I get cross, when I see red…\n\nThen I get very, very hot all over…\n\nThen the tip of the forefinger of my right hand begins to tingle most terribly…\n\nAnd suddenly a sort of flash comes out of me, a quick flash, like something electric.\n\nIt jumps out and touches the person who has made me cross…\n\nAnd after that the Magic Finger is upon him or her, and things begin to happen…",
+      "voice": "Leda",
+      "style": "Slow down into the physical sensations; gather intensity toward the flash, then leave the final warning hanging."
+    },
+    {
+      "id": "waiting",
+      "source_text": "Well, the Magic Finger was now upon the whole of the Gregg family, and there was no taking it off again.\n\nI ran home and waited for things to happen.\n\nThey happened fast.\n\nI shall now tell you what those things were. I got the whole story from Philip and William the next morning, after it was all over.",
+      "text": "Well, the Magic Finger was now upon the whole of the Gregg family, and there was no taking it off again.\n\nI ran home and waited for things to happen.\n\nThey happened fast.\n\nI shall now tell you what those things were. I got the whole story from Philip and William the next morning, after it was all over.",
+      "voice": "Leda",
+      "style": "Return to the present story; a quiet decision, then quicken on They happened fast."
+    },
+    {
+      "id": "duck-hunt",
+      "source_text": "In the afternoon of the very same day that I put the Magic Finger on the Gregg family, Mr Gregg and Philip and William went out hunting once again. This time they were going after wild ducks, so they headed towards the lake.\n\nIn the first hour they got ten birds.\n\nIn the next hour they got another six.\n\n‘What a day!’ cried Mr Gregg. ‘This is the best yet!’ He was beside himself with joy.",
+      "text": "In the afternoon of the very same day that I put the Magic Finger on the Gregg family, Mr Gregg and Philip and William went out hunting once again. This time they were going after wild ducks, so they headed towards the lake.\n\nIn the first hour they got ten birds.\n\nIn the next hour they got another six.\n\n‘What a day!’ cried Mr Gregg. ‘This is the best yet!’ He was beside himself with joy.",
+      "voice": "Leda",
+      "style": "Keep the counting brisk and plain; briefly brighten Mr Gregg’s quoted boast, then return to the narrator’s distance."
+    },
+    {
+      "id": "gunshots",
+      "source_text": "Just then four more wild ducks flew over their heads. They were flying very low. They were easy to hit.\n\nBANG! BANG! BANG! BANG! went the guns.",
+      "text": "Just then four more wild ducks flew over their heads. They were flying very low. They were easy to hit.\n\nBANG! BANG! BANG! BANG! went the guns.",
+      "voice": "Leda",
+      "style": "Narrow the focus as the ducks approach; speak the four BANGs as four crisp, evenly spaced words, then lower the voice for went the guns."
     }
   ]
 }

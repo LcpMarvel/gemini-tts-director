@@ -28,13 +28,15 @@ class Flow(unittest.TestCase):
             cfg = Path(folder) / 'route.json'
             tts.save(cfg, {'provider': 'google', 'model': 'gemini-3.8-flash-tts'})
             for name, count in (('assets/dialogue-plan.json', 1), ('assets/crowd-plan.json', 4),
-                                ('examples/the-magic-finger/plan.json', 6)):
+                                ('examples/the-magic-finger/plan.json', 13)):
                 result = tts.render(tts.config(cfg), tts.read(root / name), Path(folder) / 'audio', dry=True)
                 self.assertEqual(len(result['requests']), count)
             self.assertFalse((Path(folder) / 'audio').exists())
         example = root / 'examples/the-magic-finger'
         page = (example / 'director.html').read_text()
         plan = tts.read(example / 'plan.json')
+        self.assertTrue(plan['clips'][-1]['text'].endswith('BANG! BANG! BANG! BANG! went the guns.'))
+        self.assertNotIn('The ducks flew on.', '\n'.join(c['text'] for c in plan['clips']))
         blocks = re.findall(r'<p class="spoken">(.*?)</p>', page, re.S)
         self.assertEqual(len(blocks), len(plan['clips']))
         for block, clip in zip(blocks, plan['clips']):
