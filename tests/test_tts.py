@@ -36,11 +36,11 @@ class Flow(unittest.TestCase):
                 self.assertEqual(len(preview['requests']), 1)
                 body = preview['requests'][0]['body']
                 self.assertEqual(body['generationConfig']['speechConfig'], {'multiSpeakerVoiceConfig': {'speakerVoiceConfigs': [
-                    {'speaker': '甲', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Charon'}}},
-                    {'speaker': '乙', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Kore'}}}]}})
+                    {'speaker': 'Alex', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Charon'}}},
+                    {'speaker': 'Sam', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Kore'}}}]}})
                 self.assertEqual(body['contents'][0]['parts'], [
-                    {'text': '<breath>昨天的事，|嗯，我听着。|我想再解释一下。', 'speech_metadata': {'speaker': '甲', 'style': '有些迟疑，轻声开口'}},
-                    {'text': '你慢慢说，|真的？|我没有怪你。', 'speech_metadata': {'speaker': '乙', 'style': '温和，带一点安慰'}}])
+                    {'text': "<breath>About yesterday,|I'm listening.|I'd like to explain.", 'speech_metadata': {'speaker': 'Alex', 'style': 'Hesitant, speaking softly'}},
+                    {'text': "Take your time,|Really?|I'm not upset.", 'speech_metadata': {'speaker': 'Sam', 'style': 'Gentle and reassuring'}}])
                 m = tts.render(c, plan, out)
                 tts.render(c, plan, out)
                 self.assertEqual(call.call_count, 1)
@@ -49,7 +49,7 @@ class Flow(unittest.TestCase):
                 self.assertEqual(Path(result['audio']).read_bytes(), audio)
                 self.assertEqual(len(tts.read(result['timeline'])['segments']), 1)
                 changed = copy.deepcopy(plan)
-                changed['clips'][0]['turns'][1]['style'] = '冷淡'
+                changed['clips'][0]['turns'][1]['style'] = 'Distant'
                 m = tts.render(c, changed, out)
                 self.assertEqual(call.call_count, 2)  # One entire joint take, not two speaker calls.
                 self.assertEqual(len(m['clips']['conversation']['takes']), 2)
@@ -57,28 +57,28 @@ class Flow(unittest.TestCase):
                     tts.export(out, root / 'stale.wav')
                 # Reject malformed/unsupported dialogue before the first paid call, even after a valid clip.
                 bad_clips = []
-                for field, value in (('speakers', {'甲': 'Kore'}), ('speakers', {'甲': 'Kore', '乙': 'Puck', '丙': 'Orus'}),
-                                     ('speakers', {'甲': 'voice_custom', '乙': 'Kore'}), ('turns', []), ('voice', 'Kore')):
+                for field, value in (('speakers', {'Alex': 'Kore'}), ('speakers', {'Alex': 'Kore', 'Sam': 'Puck', 'Taylor': 'Orus'}),
+                                     ('speakers', {'Alex': 'voice_custom', 'Sam': 'Kore'}), ('turns', []), ('voice', 'Kore')):
                     bad_clips.append({**plan['clips'][0], field: value})
-                for turn in ({'speaker': '丙', 'text': '你好。'}, {'speaker': '甲', 'text': '等等|嗯'},
-                             {'speaker': '甲', 'text': '等等||再说。'}, {'speaker': '甲', 'text': '只有我。'}):
+                for turn in ({'speaker': 'Taylor', 'text': 'Hello.'}, {'speaker': 'Alex', 'text': 'Wait|Hmm'},
+                             {'speaker': 'Alex', 'text': 'Wait||Tell me more.'}, {'speaker': 'Alex', 'text': 'Only me.'}):
                     bad_clips.append({**plan['clips'][0], 'turns': [turn]})
                 for clip in bad_clips:
                     with self.assertRaises(ValueError):
-                        tts.render(c, {'clips': [{'id': 'intro', 'text': '开始。', 'voice': 'Charon'}, clip]}, root / 'bad')
+                        tts.render(c, {'clips': [{'id': 'intro', 'text': 'Start.', 'voice': 'Charon'}, clip]}, root / 'bad')
                 max_turn = max(len(p['text']) for p in body['contents'][0]['parts'])
                 for route in ({**c, 'protocol': 'speech'}, {**c, 'schema': 'legacy'}, {**c, 'max_chars': max_turn}):
                     with self.assertRaises(ValueError):
                         tts.render(route, plan, root / 'bad')
                 with self.assertRaises(ValueError):
-                    tts.render(c, {'clips': [{'id': 'solo', 'voice': 'Kore', 'text': '你好|嗯|再见'}]}, root / 'bad')
+                    tts.render(c, {'clips': [{'id': 'solo', 'voice': 'Kore', 'text': 'Hello|Hmm|Goodbye'}]}, root / 'bad')
                 self.assertEqual(call.call_count, 2)
                 self.assertFalse((root / 'bad').exists())
                 # Extended prebuilt names are not restricted to the original 30 voices.
                 extended = copy.deepcopy(plan['clips'][0])
-                extended['speakers']['甲'] = 'Bodi'
+                extended['speakers']['Alex'] = 'Bodi'
                 tts.request(c, extended)
-                mixed = {'clips': [{'id': 'intro', 'text': '两人谈起昨天的事。', 'voice': 'Charon'}, plan['clips'][0]]}
+                mixed = {'clips': [{'id': 'intro', 'text': 'They discussed what happened yesterday.', 'voice': 'Charon'}, plan['clips'][0]]}
                 tts.render(c, mixed, root / 'mixed')
                 self.assertEqual(call.call_count, 4)
                 result = tts.export(root / 'mixed', root / 'mixed.wav')
@@ -135,8 +135,8 @@ class Flow(unittest.TestCase):
                         tts.render(c, bad, root / 'bad')
                 self.assertFalse((root / 'bad').exists())
             for tag in ('snicker', 'heavy breath', 'chuckle', 'exhales'):
-                _, body = tts.request(c, {'id': 'tag', 'text': '你好', 'voice': 'Kore', 'events': [{'at': 0, 'tag': tag}]})
-                self.assertEqual(body['input'], f'<{tag}>你好')
+                _, body = tts.request(c, {'id': 'tag', 'text': 'Hello', 'voice': 'Kore', 'events': [{'at': 0, 'tag': tag}]})
+                self.assertEqual(body['input'], f'<{tag}>Hello')
 
     def test_offline_end_to_end(self):
         pcm = b'\x00\x00' * 240
@@ -180,7 +180,7 @@ class Flow(unittest.TestCase):
         try:
             with tempfile.TemporaryDirectory() as folder:
                 root = Path(folder)
-                clip = {'id': 'a', 'text': '等等。', 'voice': 'Kore', 'style': '克制，轻声', 'events': [{'at': 2, 'tag': 'sigh'}]}
+                clip = {'id': 'a', 'text': 'Café.', 'voice': 'Kore', 'style': 'Restrained and soft', 'events': [{'at': 4, 'tag': 'sigh'}]}
                 plan = {'clips': [clip, {**clip, 'id': 'b', 'voice': 'Puck'}]}
                 for provider in ('aihubmix', 'openrouter', 'google'):
                     path = root / 'config.json'
@@ -192,9 +192,9 @@ class Flow(unittest.TestCase):
                     if provider == 'aihubmix':
                         self.assertEqual(body['instructions'], clip['style'])
                         _, ordered = tts.request(c, {**clip, 'events': [{'at': 0, 'tag': 'sigh'}, {'at': 0, 'tag': 'breath'}]})
-                        self.assertEqual(ordered['input'], '<sigh><breath>等等。')
+                        self.assertEqual(ordered['input'], '<sigh><breath>Café.')
                     if provider == 'google':
-                        self.assertEqual(body['contents'][0]['parts'][0]['text'], '等等<sigh>。')
+                        self.assertEqual(body['contents'][0]['parts'][0]['text'], 'Café<sigh>.')
                     before = len(requests)
                     tts.render(c, plan, root / provider, dry=True)
                     self.assertEqual(len(requests), before)
@@ -211,7 +211,7 @@ class Flow(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         tts.export(out, root / f'{provider}.wav')
                     # Only the changed clip renders; old selection remains, export blocks stale audio.
-                    changed = {'clips': [{**clip, 'style': '冷淡'}, plan['clips'][1]]}
+                    changed = {'clips': [{**clip, 'style': 'Distant'}, plan['clips'][1]]}
                     m = tts.render(c, changed, out)
                     self.assertEqual(len(requests), before + 3)
                     self.assertEqual(len(m['clips']['a']['takes']), 2)

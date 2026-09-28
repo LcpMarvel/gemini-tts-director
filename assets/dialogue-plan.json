@@ -1,13 +1,13 @@
 {
-  "title": "双人回应示例（原创台词，未生成）",
+  "title": "Two-speaker reaction example (original dialogue, not generated)",
   "clips": [
     {
       "id": "conversation",
-      "source_text": "甲：昨天的事，我想再解释一下。乙（插话）：嗯，我听着。乙：你慢慢说，我没有怪你。甲（插话）：真的？",
-      "speakers": {"甲": "Charon", "乙": "Kore"},
+      "source_text": "Alex: About yesterday, I'd like to explain. Sam (interrupting): I'm listening. Sam: Take your time, I'm not upset. Alex (interrupting): Really?",
+      "speakers": {"Alex": "Charon", "Sam": "Kore"},
       "turns": [
-        {"speaker": "甲", "text": "昨天的事，|嗯，我听着。|我想再解释一下。", "style": "有些迟疑，轻声开口", "events": [{"at": 0, "tag": "breath"}]},
-        {"speaker": "乙", "text": "你慢慢说，|真的？|我没有怪你。", "style": "温和，带一点安慰"}
+        {"speaker": "Alex", "text": "About yesterday,|I'm listening.|I'd like to explain.", "style": "Hesitant, speaking softly", "events": [{"at": 0, "tag": "breath"}]},
+        {"speaker": "Sam", "text": "Take your time,|Really?|I'm not upset.", "style": "Gentle and reassuring"}
       ]
     }
   ]

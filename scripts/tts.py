@@ -44,29 +44,29 @@ def save(path, data):
 
 def config(path):
     raw = read(path)
-    require(isinstance(raw, dict), '配置必须是 JSON 对象')
+    require(isinstance(raw, dict), 'Config must be a JSON object')
     allowed = {'provider', 'protocol', 'base_url', 'key_env', 'auth', 'model', 'schema', 'response_format', 'style_field', 'max_chars', 'sample_rate', 'extra_body', 'events'}
-    require(not set(raw) - allowed, '配置含未知字段；凭据只能通过 key_env 读取')
+    require(not set(raw) - allowed, 'Config contains unknown fields; credentials must be read through key_env')
     provider = raw.get('provider')
     require(provider in (*PROFILES, 'custom'), 'provider: aihubmix/openrouter/google/custom')
     c = {**PROFILES.get(provider, {}), **raw}
-    require(c.get('protocol') in ('speech', 'gemini'), 'protocol: speech 或 gemini')
-    require(c.get('auth') in ('bearer', 'google'), 'auth: bearer 或 google')
+    require(c.get('protocol') in ('speech', 'gemini'), 'protocol must be speech or gemini')
+    require(c.get('auth') in ('bearer', 'google'), 'auth must be bearer or google')
     for key in ('base_url', 'key_env', 'model'):
-        require(isinstance(c.get(key), str) and c[key].strip(), f'缺少 {key}')
-    require(re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', c['key_env']), 'key_env 必须是环境变量名')
+        require(isinstance(c.get(key), str) and c[key].strip(), f'Missing {key}')
+    require(re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', c['key_env']), 'key_env must be an environment variable name')
     url = urllib.parse.urlsplit(c['base_url'])
-    require(url.scheme == 'https' or (url.scheme == 'http' and url.hostname in ('localhost', '127.0.0.1', '::1')), '地址必须使用 HTTPS（本机测试除外）')
-    require(url.hostname and not url.username and not url.password and not url.query and not url.fragment, 'base_url 不允许凭据、查询或 fragment')
+    require(url.scheme == 'https' or (url.scheme == 'http' and url.hostname in ('localhost', '127.0.0.1', '::1')), 'URL must use HTTPS (except for local testing)')
+    require(url.hostname and not url.username and not url.password and not url.query and not url.fragment, 'base_url must not contain credentials, a query, or a fragment')
     c['base_url'] = c['base_url'].rstrip('/')
     c.setdefault('schema', 'metadata')
-    require(c['schema'] in ('metadata', 'legacy'), 'schema: metadata 或 legacy')
+    require(c['schema'] in ('metadata', 'legacy'), 'schema must be metadata or legacy')
     if c['protocol'] == 'speech':
-        require(c.get('response_format') in ('wav', 'pcm'), 'response_format 必须是 wav 或 pcm')
-    require(isinstance(c.get('sample_rate', 24000), int) and 8000 <= c.get('sample_rate', 24000) <= 192000, 'sample_rate 无效')
+        require(c.get('response_format') in ('wav', 'pcm'), 'response_format must be wav or pcm')
+    require(isinstance(c.get('sample_rate', 24000), int) and 8000 <= c.get('sample_rate', 24000) <= 192000, 'Invalid sample_rate')
     # Older Google models require an explicit legacy contract, not guessed fields.
     if re.search(r'gemini-(2\.5|3\.1)', c['model']):
-        require(c['protocol'] != 'gemini' or c['schema'] == 'legacy', '旧 Gemini 模型请配置 schema=legacy')
+        require(c['protocol'] != 'gemini' or c['schema'] == 'legacy', 'Older Gemini models require schema=legacy')
         if provider == 'openrouter' and 'style_field' not in raw:
             c['style_field'] = None
     return c
@@ -74,58 +74,58 @@ def config(path):
 
 def put(body, dotted, value):
     keys = dotted.split('.')
-    require(keys[0] not in ('model', 'input', 'voice', 'response_format'), 'style_field 不能覆盖核心字段')
+    require(keys[0] not in ('model', 'input', 'voice', 'response_format'), 'style_field must not override core fields')
     for key in keys[:-1]:
         body = body.setdefault(key, {})
-        require(isinstance(body, dict), 'style_field 与 extra_body 冲突')
-    require(keys[-1] not in body, 'style_field 与 extra_body 冲突')
+        require(isinstance(body, dict), 'style_field conflicts with extra_body')
+    require(keys[-1] not in body, 'style_field conflicts with extra_body')
     body[keys[-1]] = value
 
 
 def transcript(c, clip, dialogue=False):
-    require(isinstance(clip.get('text'), str) and clip['text'].strip(), '片段缺少 text')
+    require(isinstance(clip.get('text'), str) and clip['text'].strip(), 'Clip is missing text')
     style = clip.get('style', '')
-    require(isinstance(style, str), 'style 必须是字符串')
+    require(isinstance(style, str), 'style must be a string')
     text = clip['text']
     if '|' in text:
-        require(dialogue, '|回应| 仅用于原生双人 turns；要朗读竖线请在制作稿写出读法并保留 source_text')
+        require(dialogue, '|reactions| are only supported in native two-speaker turns; to read a vertical bar aloud, spell it out in text and retain source_text')
         segments = text.split('|')
-        require(len(segments) % 2 == 1 and all(s.strip() for s in segments[1::2]), '|回应| 必须成对且内容非空')
+        require(len(segments) % 2 == 1 and all(s.strip() for s in segments[1::2]), '|reactions| must be paired and nonempty')
     events = clip.get('events', [])
-    require(isinstance(events, list), 'events 必须是数组')
-    require(not events or c.get('events', 'gemini-3.8' in c['model']), '该模型的事件语法未验证；请先确认，再显式配置 events=true')
+    require(isinstance(events, list), 'events must be an array')
+    require(not events or c.get('events', 'gemini-3.8' in c['model']), 'Event syntax is unverified for this model; confirm support before explicitly setting events=true')
     for event in events:
-        require(isinstance(event, dict) and set(event) == {'at', 'tag'}, '事件需要 at/tag')
-        require(type(event['at']) is int and 0 <= event['at'] <= len(text), '事件位置必须是原 text 的字符偏移')
-        require(event['tag'] in TAGS, '未支持的事件标签')
+        require(isinstance(event, dict) and set(event) == {'at', 'tag'}, 'Events require at and tag')
+        require(type(event['at']) is int and 0 <= event['at'] <= len(text), 'Event position must be a character offset in the original text')
+        require(event['tag'] in TAGS, 'Unsupported event tag')
     for event in reversed(sorted(events, key=lambda e: e['at'])):
         text = text[:event['at']] + '<' + event['tag'] + '>' + text[event['at']:]
-    require(len(text) <= c.get('max_chars', 100000), '文本超过路由长度限制，请拆分')
+    require(len(text) <= c.get('max_chars', 100000), 'Text exceeds the route length limit; split it')
     return text, style
 
 
 def request(c, clip):
-    require(isinstance(clip, dict), '片段必须是对象')
+    require(isinstance(clip, dict), 'Clip must be an object')
     cid = clip.get('id')
-    require(isinstance(cid, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', cid), '片段 id 仅允许字母数字下划线和短横线')
+    require(isinstance(cid, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', cid), 'Clip id may contain only letters, digits, underscores, and hyphens')
     dialogue = 'turns' in clip or 'speakers' in clip
     if dialogue:
-        require(not set(clip) - {'id', 'source_text', 'speakers', 'turns'}, '双人片段仅支持 id/source_text/speakers/turns')
-        require(c['protocol'] == 'gemini' and c['schema'] == 'metadata', '原生双人需要 Gemini metadata 协议；不自动降级或换供应商')
+        require(not set(clip) - {'id', 'source_text', 'speakers', 'turns'}, 'Two-speaker clips support only id/source_text/speakers/turns')
+        require(c['protocol'] == 'gemini' and c['schema'] == 'metadata', 'Native two-speaker audio requires the Gemini metadata protocol; no automatic downgrade or provider switch')
         speakers, turns = clip.get('speakers'), clip.get('turns')
-        require(isinstance(speakers, dict) and len(speakers) == 2, '原生双人需要恰好两位 speakers')
+        require(isinstance(speakers, dict) and len(speakers) == 2, 'Native two-speaker audio requires exactly two speakers')
         voices = []
         for speaker, voice in speakers.items():
-            require(isinstance(speaker, str) and speaker.strip() and speaker == speaker.strip(), 'speaker 名称不能为空或含首尾空白')
-            require(isinstance(voice, str) and voice.strip(), 'speaker 缺少音色')
-            require(not voice.startswith(('voice_', 'voicekey_')), '原生双人的 prebuiltVoiceConfig 需预置音色；自定义声音请逐轮制作')
+            require(isinstance(speaker, str) and speaker.strip() and speaker == speaker.strip(), 'Speaker names must be nonempty and have no surrounding whitespace')
+            require(isinstance(voice, str) and voice.strip(), 'Speaker is missing a voice')
+            require(not voice.startswith(('voice_', 'voicekey_')), 'Native two-speaker prebuiltVoiceConfig requires a preset voice; render custom voices one turn at a time')
             voices.append({'speaker': speaker, 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': voice}}})
-        require(isinstance(turns, list) and turns, 'turns 必须为非空数组')
+        require(isinstance(turns, list) and turns, 'turns must be a nonempty array')
         parts, used = [], set()
         for turn in turns:
-            require(isinstance(turn, dict) and not set(turn) - {'speaker', 'text', 'source_text', 'style', 'events'}, '轮次仅支持 speaker/text/source_text/style/events')
+            require(isinstance(turn, dict) and not set(turn) - {'speaker', 'text', 'source_text', 'style', 'events'}, 'Turns support only speaker/text/source_text/style/events')
             speaker = turn.get('speaker')
-            require(isinstance(speaker, str) and speaker in speakers, '轮次引用未定义的 speaker')
+            require(isinstance(speaker, str) and speaker in speakers, 'Turn references an undefined speaker')
             text, style = transcript(c, turn, dialogue=True)
             used.add(speaker)
             if '|' in text:
@@ -134,24 +134,24 @@ def request(c, clip):
             if style:
                 metadata['style'] = style
             parts.append({'text': text, 'speech_metadata': metadata})
-        require(used == set(speakers), '两位 speaker 均需发言或作为 |回应| 的听者')
-        require(sum(len(p['text']) for p in parts) <= c.get('max_chars', 100000), '对话总长度超过路由限制，请按场景拆分')
+        require(used == set(speakers), 'Both speakers must speak or be the listener for a |reaction|')
+        require(sum(len(p['text']) for p in parts) <= c.get('max_chars', 100000), 'Dialogue exceeds the route length limit; split it by scene')
         speech = {'multiSpeakerVoiceConfig': {'speakerVoiceConfigs': voices}}
     else:
-        require(not set(clip) - {'id', 'text', 'source_text', 'voice', 'style', 'events'}, '片段包含未知字段')
-        require(isinstance(clip.get('voice'), str) and clip['voice'].strip(), '片段缺少 voice')
-        require(not clip['voice'].startswith('voicekey_'), '临时 voice key 暂未实现安全存储；请使用预置声音或存储式 ID')
+        require(not set(clip) - {'id', 'text', 'source_text', 'voice', 'style', 'events'}, 'Clip contains unknown fields')
+        require(isinstance(clip.get('voice'), str) and clip['voice'].strip(), 'Clip is missing a voice')
+        require(not clip['voice'].startswith('voicekey_'), 'Temporary voice keys have no secure storage yet; use a preset voice or stored ID')
         text, style = transcript(c, clip)
     body = copy.deepcopy(c.get('extra_body', {}))
-    require(isinstance(body, dict), 'extra_body 必须是对象')
+    require(isinstance(body, dict), 'extra_body must be an object')
     if c['protocol'] == 'speech':
-        require(not set(body) & {'model', 'input', 'voice', 'response_format'}, 'extra_body 不得覆盖核心字段')
+        require(not set(body) & {'model', 'input', 'voice', 'response_format'}, 'extra_body must not override core fields')
         body.update(model=c['model'], input=text, voice=clip['voice'], response_format=c['response_format'])
         if style:
-            require(c.get('style_field'), '此路由未配置表演指令映射；不能静默丢弃 style')
+            require(c.get('style_field'), 'This route has no style instruction mapping; style cannot be silently discarded')
             put(body, c['style_field'], style)
         return c['base_url'] + '/audio/speech', body
-    require(not set(body) & {'contents', 'generationConfig'}, 'extra_body 不得覆盖 contents/generationConfig')
+    require(not set(body) & {'contents', 'generationConfig'}, 'extra_body must not override contents/generationConfig')
     if not dialogue:
         if c['schema'] == 'metadata':
             part = {'text': text}
@@ -173,20 +173,20 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def call(c, url, body):
     secret = os.environ.get(c['key_env'])
-    require(secret, f"未配置环境变量 {c['key_env']}")
+    require(secret, f"Environment variable {c['key_env']} is not set")
     headers = {'Content-Type': 'application/json'}
     headers['Authorization' if c['auth'] == 'bearer' else 'x-goog-api-key'] = ('Bearer ' if c['auth'] == 'bearer' else '') + secret
     req = urllib.request.Request(url, json.dumps(body).encode(), headers)
     try:
         with urllib.request.build_opener(NoRedirect()).open(req, timeout=180) as response:
             data = response.read(128 * 1024 * 1024 + 1)
-            require(len(data) <= 128 * 1024 * 1024, '响应超过 128 MiB 限制')
+            require(len(data) <= 128 * 1024 * 1024, 'Response exceeds the 128 MiB limit')
             return data, response.headers.get('Content-Type', ''), response.headers.get('X-Generation-Id')
     except urllib.error.HTTPError as e:
         # Never print upstream bodies: they can echo credentials or private input.
-        raise RuntimeError(f'HTTP {e.code}；未重试，请检查接入商控制台') from None
+        raise RuntimeError(f'HTTP {e.code}; not retried; check your provider dashboard') from None
     except (urllib.error.URLError, TimeoutError, OSError):
-        raise RuntimeError('网络请求未完成；可能已计费，未自动重试') from None
+        raise RuntimeError('Network request did not complete; it may have been billed and was not retried automatically') from None
 
 
 def wav_data(data, mime, rate):
@@ -194,10 +194,10 @@ def wav_data(data, mime, rate):
         with wave.open(io.BytesIO(data), 'rb') as f:
             params = f.getparams()
             frames = f.readframes(params.nframes)
-        require(params.comptype == 'NONE' and params.nframes > 0 and len(frames) == params.nframes * params.nchannels * params.sampwidth, 'WAV 为空或不完整')
+        require(params.comptype == 'NONE' and params.nframes > 0 and len(frames) == params.nframes * params.nchannels * params.sampwidth, 'WAV is empty or incomplete')
         return data
-    require(mime.split(';')[0].strip().lower() in ('audio/pcm', 'audio/l16', 'audio/lpcm', 'application/octet-stream'), '预期 WAV/PCM，收到其他类型')
-    require(data and len(data) % 2 == 0 and not data.lstrip().startswith((b'{', b'<')), 'PCM 为空、损坏或是错误响应')
+    require(mime.split(';')[0].strip().lower() in ('audio/pcm', 'audio/l16', 'audio/lpcm', 'application/octet-stream'), 'Expected WAV/PCM, received another content type')
+    require(data and len(data) % 2 == 0 and not data.lstrip().startswith((b'{', b'<')), 'PCM is empty, corrupt, or an error response')
     matched = re.search(r'rate=(\d+)', mime)
     if matched:
         rate = int(matched.group(1))
@@ -213,15 +213,15 @@ def decode(c, data, mime):
     if c['protocol'] == 'gemini':
         result = json.loads(data)
         candidates = result.get('candidates', [])
-        require(len(candidates) == 1 and candidates[0].get('finishReason') == 'STOP', 'Gemini 未返回单个完成的音频结果')
+        require(len(candidates) == 1 and candidates[0].get('finishReason') == 'STOP', 'Gemini did not return exactly one completed audio result')
         parts = candidates[0].get('content', {}).get('parts', [])
         audio = [p['inlineData'] for p in parts if 'inlineData' in p]
-        require(len(audio) == 1, '预期一个完整音频 part；未自动拼接未知分块')
+        require(len(audio) == 1, 'Expected one complete audio part; unknown chunks are not joined automatically')
         data = base64.b64decode(audio[0]['data'], validate=True)
         mime = audio[0]['mimeType']
         usage = result.get('usageMetadata')
     elif c['response_format'] == 'wav':
-        require(data.startswith(b'RIFF'), '请求 WAV 但收到非 WAV 内容')
+        require(data.startswith(b'RIFF'), 'Requested WAV but received non-WAV content')
     return wav_data(data, mime, c.get('sample_rate', 24000)), usage
 
 
@@ -234,36 +234,36 @@ def scenes_for(plan, ids):
     if 'scenes' not in plan:
         return [{'id': cid, 'layers': [{'clip': cid}]} for cid in ids]
     scenes = plan['scenes']
-    require(isinstance(scenes, list) and scenes, 'scenes 必须为非空数组')
+    require(isinstance(scenes, list) and scenes, 'scenes must be a nonempty array')
     seen, used = set(), set()
     for scene in scenes:
-        require(isinstance(scene, dict) and set(scene) == {'id', 'layers'}, '场景需要 id/layers')
+        require(isinstance(scene, dict) and set(scene) == {'id', 'layers'}, 'Scene requires id/layers')
         sid = scene['id']
-        require(isinstance(sid, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', sid) and sid not in seen, '场景 id 无效或重复')
+        require(isinstance(sid, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', sid) and sid not in seen, 'Scene id is invalid or duplicated')
         seen.add(sid)
-        require(isinstance(scene['layers'], list) and scene['layers'], '场景需要非空 layers')
+        require(isinstance(scene['layers'], list) and scene['layers'], 'Scene requires nonempty layers')
         for layer in scene['layers']:
-            require(isinstance(layer, dict) and not set(layer) - {'clip', 'start_ms', 'gain_db'}, '轨道仅支持 clip/start_ms/gain_db')
+            require(isinstance(layer, dict) and not set(layer) - {'clip', 'start_ms', 'gain_db'}, 'Layers support only clip/start_ms/gain_db')
             cid = layer.get('clip')
-            require(isinstance(cid, str) and cid in ids, '轨道引用不存在的 clip')
+            require(isinstance(cid, str) and cid in ids, 'Layer references a nonexistent clip')
             used.add(cid)
             start, gain = layer.get('start_ms', 0), layer.get('gain_db', 0)
-            require(type(start) is int and start >= 0, 'start_ms 必须为非负整数')
-            require(type(gain) in (int, float) and -60 <= gain <= 12, 'gain_db 范围为 -60 到 12')
-    require(used == set(ids), 'scenes 必须覆盖所有 clips，避免生成未使用的音频')
+            require(type(start) is int and start >= 0, 'start_ms must be a nonnegative integer')
+            require(type(gain) in (int, float) and -60 <= gain <= 12, 'gain_db must be between -60 and 12')
+    require(used == set(ids), 'scenes must include every clip to avoid unused generated audio')
     return scenes
 
 
 def render(c, plan, directory, dry=False, only=None, new_take=False, retry=False):
-    require(isinstance(plan, dict) and set(plan) <= {'title', 'clips', 'scenes'} and isinstance(plan.get('clips'), list) and plan['clips'], '制作稿需要非空 clips 数组')
+    require(isinstance(plan, dict) and set(plan) <= {'title', 'clips', 'scenes'} and isinstance(plan.get('clips'), list) and plan['clips'], 'Plan requires a nonempty clips array')
     compiled = [(clip, request(c, clip)) for clip in plan['clips']]
     ids = [clip['id'] for clip, _ in compiled]
-    require(len(ids) == len(set(ids)), '片段 id 重复')
+    require(len(ids) == len(set(ids)), 'Duplicate clip id')
     scenes = scenes_for(plan, ids)
-    require(only is None or only in ids, '--clip 不存在')
+    require(only is None or only in ids, '--clip does not exist')
     if dry:
         return {'requests': [{'clip': clip['id'], 'url': url, 'body': body} for clip, (url, body) in compiled if only is None or clip['id'] == only], 'scenes': scenes, 'account_verified': False}
-    require(os.environ.get(c['key_env']), f"未配置环境变量 {c['key_env']}")
+    require(os.environ.get(c['key_env']), f"Environment variable {c['key_env']} is not set")
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     with (out / '.lock').open('a') as lock:
@@ -285,10 +285,10 @@ def render(c, plan, directory, dry=False, only=None, new_take=False, retry=False
             done = [t for t in matching if t['status'] == 'complete']
             if done and not new_take:
                 for take in done:
-                    require((out / take['file']).exists(), '已完成的音频文件缺失；用 --new-take 显式重做')
+                    require((out / take['file']).exists(), 'Completed audio file is missing; use --new-take to render it again')
                     wav_data((out / take['file']).read_bytes(), 'audio/wav', c.get('sample_rate', 24000))
                 continue
-            require(retry or not any(t['status'] in ('running', 'uncertain') for t in matching), '上次请求结果不确定；检查供应商后用 --retry-uncertain 显式重试')
+            require(retry or not any(t['status'] in ('running', 'uncertain') for t in matching), 'Previous request outcome is uncertain; check with your provider before using --retry-uncertain')
             tid = uuid.uuid4().hex[:12]
             take = {'id': tid, 'fingerprint': entry['current'], 'status': 'running', 'file': f"{clip['id']}-{tid}.wav", 'route': {'provider': c['provider'], 'base_url': c['base_url'], 'model': c['model']}, 'script': clip, 'request': body}
             entry['takes'].append(take)
@@ -310,7 +310,7 @@ def render(c, plan, directory, dry=False, only=None, new_take=False, retry=False
 
 
 def mix_scene(scene, audio, fmt):
-    require(fmt[1] == 2, '重叠混音仅支持 16-bit PCM WAV')
+    require(fmt[1] == 2, 'Overlapping mix supports only 16-bit PCM WAV')
     tracks = []
     for layer in scene['layers']:
         item = audio[layer['clip']]
@@ -318,7 +318,7 @@ def mix_scene(scene, audio, fmt):
         tracks.append((layer, item, start))
     count = max(start + item['count'] for _, item, start in tracks)
     # ponytail: buffer one scene; stream in blocks if long scenes exceed memory.
-    require(count * fmt[0] * 8 <= 256 * 1024 * 1024, '场景混音缓冲超过 256 MiB，请按场景拆分')
+    require(count * fmt[0] * 8 <= 256 * 1024 * 1024, 'Scene mix buffer exceeds 256 MiB; split the scene')
     mixed = array('d', [0.0]) * (count * fmt[0])
     for layer, item, start in tracks:
         samples = array('h')
@@ -342,19 +342,19 @@ def export(directory, output, plan=None):
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         m = read(out / 'manifest.json')
         if plan is not None:
-            require(isinstance(plan, dict) and set(plan) <= {'title', 'clips', 'scenes'}, '制作稿包含未知字段')
-            require(plan.get('clips') == [m['clips'][cid]['script'] for cid in m['order']], 'export --plan 只能调整编排；台词或表演变化请先 render')
+            require(isinstance(plan, dict) and set(plan) <= {'title', 'clips', 'scenes'}, 'Plan contains unknown fields')
+            require(plan.get('clips') == [m['clips'][cid]['script'] for cid in m['order']], 'export --plan may only change arrangement; render script or style changes first')
         scenes = scenes_for(plan if plan is not None else m, m['order'])
         chunks, timeline, scene_times, audio, fmt, offset = [], [], [], {}, None, 0
         for cid in m['order']:
             entry = m['clips'][cid]
             take = next((t for t in entry['takes'] if t['id'] == entry['selected']), None)
-            require(take and take['status'] == 'complete' and take['fingerprint'] == entry['current'], f'{cid} 缺少当前稿的已选音频，请 select')
+            require(take and take['status'] == 'complete' and take['fingerprint'] == entry['current'], f'{cid} has no selected audio for the current plan; use select')
             with wave.open(str(out / take['file']), 'rb') as f:
                 current = (f.getnchannels(), f.getsampwidth(), f.getframerate())
                 frames, count = f.readframes(f.getnframes()), f.getnframes()
-            require(count > 0 and f.getcomptype() == 'NONE' and len(frames) == count * current[0] * current[1], '音频损坏')
-            require(fmt is None or fmt == current, '音频格式不同；请先使用同一采样率重新生成或显式转换')
+            require(count > 0 and f.getcomptype() == 'NONE' and len(frames) == count * current[0] * current[1], 'Audio is corrupt')
+            require(fmt is None or fmt == current, 'Audio formats differ; rerender at the same sample rate or convert explicitly')
             fmt = current
             audio[cid] = {'frames': frames, 'count': count, 'take': take['id']}
         for scene in scenes:
@@ -371,9 +371,9 @@ def export(directory, output, plan=None):
             offset += count
             chunks.append(frames)
         target = Path(output)
-        require(target.suffix.lower() == '.wav', '当前导出仅支持 .wav；压缩格式请用本地音频工具转换')
+        require(target.suffix.lower() == '.wav', 'Export supports only .wav; use a local audio tool for compressed formats')
         sidecar = target.with_suffix('.timeline.json')
-        require(not target.exists() and not sidecar.exists(), '输出已存在，请换文件名')
+        require(not target.exists() and not sidecar.exists(), 'Output already exists; choose another filename')
         with target.open('xb') as raw:
             with wave.open(raw, 'wb') as f:
                 f.setparams((*fmt, 0, 'NONE', 'not compressed'))
@@ -412,7 +412,7 @@ def main():
             q.add_argument('--take', required=True)
         if name == 'export':
             q.add_argument('--output', required=True)
-            q.add_argument('--plan', help='只调整场景编排，复用已有选片，不调用 TTS')
+            q.add_argument('--plan', help='Change scene arrangement using selected takes without calling TTS')
     a = p.parse_args()
     if a.command in ('check', 'speak', 'render'):
         c = config(a.config)
@@ -431,7 +431,7 @@ def main():
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             m = read(path)
             entry = m['clips'][a.clip]
-            require(any(t['id'] == a.take and t['status'] == 'complete' and t['fingerprint'] == entry['current'] for t in entry['takes']), '只能选择当前稿的已完成 take')
+            require(any(t['id'] == a.take and t['status'] == 'complete' and t['fingerprint'] == entry['current'] for t in entry['takes']), 'Can only select a completed take for the current plan')
             entry['selected'] = a.take
             save(path, m)
         return {'selected': a.take}
@@ -442,5 +442,5 @@ if __name__ == '__main__':
     try:
         print(json.dumps(main(), ensure_ascii=False, indent=2))
     except (ValueError, RuntimeError, OSError, KeyError, TypeError, wave.Error) as error:
-        print(f'错误：{error}', file=sys.stderr)
+        print(f'Error: {error}', file=sys.stderr)
         sys.exit(1)

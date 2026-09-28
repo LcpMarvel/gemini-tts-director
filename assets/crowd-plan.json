@@ -1,33 +1,33 @@
 {
-  "title": "孔乙己 · 酒客七嘴八舌",
+  "title": "Kong Yiji · Tavern patrons chime in",
   "clips": [
     {
       "id": "intro",
       "source_text": "他们又故意的高声嚷道，",
       "text": "他们又故意的高声嚷道，",
       "voice": "Charon",
-      "style": "平静叙述，在引语前略收。"
+      "style": "Narrate calmly, easing off just before the quote."
     },
     {
       "id": "lead",
       "source_text": "你一定又偷了人家的东西了！",
       "text": "你一定又偷了人家的东西了！",
       "voice": "Fenrir",
-      "style": "高声起哄，挑衅地咬住“又偷了”，吐字清楚。"
+      "style": "Taunt loudly, stressing “stole again” with clear diction."
     },
     {
       "id": "guest-2",
       "source_text": "你一定又偷了人家的东西了！",
       "text": "你一定又偷了人家的东西了！",
       "voice": "Iapetus",
-      "style": "急着附和，语速稍快，重音落在人家的东西。"
+      "style": "Join in eagerly, a little faster, stressing “someone else’s belongings.”"
     },
     {
       "id": "guest-3",
       "source_text": "你一定又偷了人家的东西了！",
       "text": "你一定又偷了人家的东西了！",
       "voice": "Algieba",
-      "style": "带嘲弄的笑意，拖一点尾音，随口跟着起哄。"
+      "style": "Chime in casually with a mocking smile and a slightly drawn-out ending."
     }
   ],
   "scenes": [
