@@ -9,6 +9,8 @@ You are the director. The bundled script only sends TTS requests and processes a
 
 ## Start
 
+Use the user’s specified voice IDs and role bindings. Recommend voices when needed; do not replace an explicit choice or require catalog browsing or an audition. An absent sample is not a reason to reject a voice. Validate compatibility with the selected route and production mode before generation; explain an unsupported combination without silently substituting a voice.
+
 When the user wants to review the direction, choose voices, or avoid generation for now, read [Preview and voice selection](references/preview.md) and deliver concise Markdown and HTML reading copies. This stage needs no TTS route or key and makes no generation request. Optional role-specific voice tests use one representative line per role: show the count and explain that TTS may cost money before generating. The user may accept the choices, change them, or request a new test. Changing a voice alone makes no TTS call.
 
 Read [Directing method](references/directing.md) to identify the text type, speakers, relationships, and local scene needs. Choose continuous solo reading, separate per-turn clips, native two-speaker dialogue (including listener responses when warranted), or local layered voices; one work may mix them. A quotation alone does not imply a new speaker, and ordinary dialogue needs no invented interjection. Record the choice and a short reason in the reading copy, then save the production JSON. Distinguish planned voice choices, isolated tests, and full-work production: five role tests do not mean that five voices have been applied to the full text.
@@ -31,7 +33,7 @@ python3 "$SKILL_DIR/scripts/tts.py" speak --config route.json --text 'We can sto
 
 - Python 3.10+ on macOS/Linux; standard library only. The host must read/write files, run scripts, and reach the chosen API. An ordinary web chat does not automatically have those abilities.
 - Provider and protocol are configured separately, including custom HTTPS endpoints. A shared production plan does not imply identical capabilities on every route; check the selected model and request fields.
-- Implemented: solo and separate per-turn clips; Gemini metadata native two-speaker clips with `|listener response|`; free-form style and positioned events; WAV/PCM handling; take reuse, selection, and revision; JSON scene offsets, gain, WAV mixing/joining, and track timing. Streaming, voice creation/replication/deletion, Interactions, and Batch are not implemented. Do not invent CLI options for them.
+- Implemented: solo and separate per-turn clips; Gemini metadata native two-speaker clips with `|listener response|`; free-form style and positioned events; WAV/PCM handling; take reuse, selection, and revision; JSON scene offsets, gain, WAV mixing/joining, and track timing. Voice creation/replication/management, streaming playback, Interactions, remote Batch, and Flex/Priority are outside this skill’s scope. Do not invent CLI options for them.
 - Native dialogue sends exactly two preset voices, ordered turns, and per-turn style in one request that returns one audio clip. Changing any turn or listener response regenerates that whole clip. Current speech/legacy routes do not support this joint request; never silently convert it to solo clips or switch providers. The preset library is not limited to the original 30 voices; actual availability depends on the route.
 - A sigh or similar event is a performance prompt, not a guaranteed effect or exact duration. Verify event syntax on older models. Style is not a fixed emotion enum.
 - Project files retain text, voice bindings, and actual requests. They are not uploaded to another service automatically. Spoken text goes to the chosen provider, whose charges the user pays; this tool offers no free allowance or platform billing.
@@ -39,5 +41,3 @@ python3 "$SKILL_DIR/scripts/tts.py" speak --config route.json --text 'We can sto
 - A successful API response and valid WAV do not prove complete lines or good acting. Do not fabricate word subtitles, timestamps for turns inside one take, or independent tracks for native dialogue.
 
 Worked reading copies: [The Magic Finger](examples/the-magic-finger/director.md) shows English first-person narration without invented interjections; [Kong Yiji](examples/kong-yiji/director.md) shows layered crowd voices with the original Chinese text. Each includes an HTML preview and a production-plan link. Use them as examples, not fixed casting or segmentation rules.
-
-The longer product roadmap is in `PRD.md`; normal production need not load it.

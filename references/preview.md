@@ -23,7 +23,7 @@ After generation or remix, update players, recorded voices, and version labels f
 
 ## Voice catalog and official samples
 
-Do not turn one user's preference, a one-off API failure, or the example voices into a universal restriction. Users can browse and choose the wider library. Before generating, check whether the selected route supports the exact voice. An official sample's availability does not prove generation works on this route. Let the user choose another voice or route when needed.
+Do not turn one user's preference, a one-off API failure, or the example voices into a universal restriction. Users can specify an exact voice ID directly or browse the wider library. Preserve explicit role bindings; catalog lookup and samples are optional, and a missing sample does not invalidate the choice. Before generating, check whether the selected route supports the exact voice. An official sample's availability does not prove generation works on this route. Let the user choose another voice or route when needed.
 
 Use the [Google AI Studio voice picker](https://aistudio.google.com/generate-speech) for discovery. Do not substitute old Google Cloud or Chirp samples for Gemini samples.
 

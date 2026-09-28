@@ -102,7 +102,7 @@ On that date Google Gemini 3.8 Flash TTS generated five short role lines plus fo
 
 Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export, but no live API or listening validation. Only the Gemini metadata route implements this joint request. It does not establish support on intermediary `speech` routes.
 
-Streaming, voice design/replication/management, Batch/Flex/Priority, and Interactions remain PRD goals. Native Google documentation does not establish intermediary support.
+Voice design/replication/management, streaming playback, Interactions, remote Batch, and Flex/Priority are outside this skill’s scope. Native Google documentation does not establish intermediary support.
 
 ## API references
 

@@ -6,6 +6,8 @@ Let your AI agent direct the performance: understand the text, cast the voices, 
 
 The skill supports narration, separate character takes, native two-speaker dialogue, and layered crowd scenes. Your existing agent makes the creative decisions; a Python script handles TTS requests, takes, and local mixing. No second planning model is required.
 
+Use your own voice IDs or ask the director to recommend voices; availability depends on your route. The skill focuses on scripts, performance, generation, revision, and local assembly. Voice creation and account management, streaming playback, Interactions, remote Batch, and service-tier management are outside its scope.
+
 ## Install
 
 Using [vercel-labs/skills](https://github.com/vercel-labs/skills):
@@ -87,7 +89,6 @@ For an installed skill, replace the script and plan paths with their installed l
 - [Scripts and auditions](references/preview.md): readable previews, sample discovery, and optional line auditions.
 - [Dialogue and scene arrangement](references/arrangement.md): JSON contracts, mixing, and revision scope.
 - [Original dialogue example](assets/dialogue-plan.json): a compact native listener-reaction plan.
-- [Product requirements](PRD.md): implemented scope and future goals.
 
 `scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Full local work directories, recordings, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
 

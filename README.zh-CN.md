@@ -6,6 +6,8 @@
 
 支持单人朗读、分角色对话、原生双人回应和多人群声。导演由你正在使用的 Agent 担任；执行脚本只负责 TTS、保存候选和本地混音，不另调用规划模型。
 
+你可以直接指定音色 ID，也可以让导演推荐；可用性取决于所选接口。这个 skill 聚焦导演稿、表演、生成、返工和本地拼接，不负责创建或管理音色，也不提供流式播放、Interactions、远程 Batch 或服务档位管理。
+
 ## 安装
 
 使用 [vercel-labs/skills](https://github.com/vercel-labs/skills)：
@@ -80,7 +82,6 @@ python3 scripts/tts.py render --config /path/to/route.json --plan assets/dialogu
 - [导演稿与试听](references/preview.md)：可读页面、音色样本和可选试音。
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
 - [双人示例](assets/dialogue-plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
-- [产品需求](PRD.md)：已实现范围和后续目标。
 
 下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。播放器只播放官方已有音色样本，没有为该示例生成 TTS。
 
