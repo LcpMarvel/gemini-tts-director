@@ -19,7 +19,7 @@ Narrative lead-in followed by three separately generated voices. This is a crowd
 
 > 他们又故意的高声嚷道，“你一定又偷了人家的东西了！”
 
-[HTML preview](director.html) · [Production JSON](../../assets/crowd-plan.json) · Four planned takes.
+[HTML preview](director.html) · [Production JSON](plan.json) · Four planned takes.
 
 ## The crowd enters
 

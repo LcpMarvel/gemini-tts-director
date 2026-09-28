@@ -79,7 +79,7 @@ python3 scripts/tts.py render --config /path/to/route.json --plan assets/dialogu
 - [导演方法](references/directing.md)：文本判断、表演选择、原文与改编边界。
 - [导演稿与试听](references/preview.md)：可读页面、音色样本和可选试音。
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
-- [双人示例](assets/dialogue-plan.json)、[群声示例](assets/crowd-plan.json)：可直接 dry-run 的制作稿。
+- [双人示例](assets/dialogue-plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
 - [产品需求](PRD.md)：已实现范围和后续目标。
 
 下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。播放器只播放官方已有音色样本，没有为该示例生成 TTS。

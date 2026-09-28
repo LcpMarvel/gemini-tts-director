@@ -27,7 +27,7 @@ class Flow(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, patch.object(tts, 'call', side_effect=AssertionError('Examples must stay offline')):
             cfg = Path(folder) / 'route.json'
             tts.save(cfg, {'provider': 'google', 'model': 'gemini-3.8-flash-tts'})
-            for name, count in (('assets/dialogue-plan.json', 1), ('assets/crowd-plan.json', 4),
+            for name, count in (('assets/dialogue-plan.json', 1), ('examples/kong-yiji/plan.json', 4),
                                 ('examples/the-magic-finger/plan.json', 13)):
                 result = tts.render(tts.config(cfg), tts.read(root / name), Path(folder) / 'audio', dry=True)
                 self.assertEqual(len(result['requests']), count)

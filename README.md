@@ -41,7 +41,7 @@ The director chooses a production method from the text and character relationshi
 | Example | What it demonstrates | Files |
 | --- | --- | --- |
 | *The Magic Finger* — Roald Dahl | An English opening excerpt through the four gunshots: first-person narration, the classroom flashback, and the duck hunt. No invented listener reactions. | [Director's script](examples/the-magic-finger/director.md) · [HTML preview](examples/the-magic-finger/director.html) · [Production JSON](examples/the-magic-finger/plan.json) |
-| *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](assets/crowd-plan.json) |
+| *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](examples/kong-yiji/plan.json) |
 
 Download or clone the repository and open either HTML file in a browser. Players use Google's existing voice samples; generated recordings are not included. The supplied *The Magic Finger* EPUB has one continuous story rather than numbered chapters, so the example clearly identifies an opening excerpt ending at “BANG! BANG! BANG! BANG! went the guns.” rather than labeling it “Chapter 1.”
 

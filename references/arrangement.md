@@ -34,7 +34,7 @@ Show each turn's speaker, words, and short style in the reading copy. Label a li
 
 ## Layered crowd example
 
-The [crowd plan](../assets/crowd-plan.json) contains narration and three different voices saying the same source line: four TTS requests. State the count and potential cost if authorization does not already cover it. The repeated performance does not rewrite the source.
+The [crowd plan](../examples/kong-yiji/plan.json) contains narration and three different voices saying the same source line: four TTS requests. State the count and potential cost if authorization does not already cover it. The repeated performance does not rewrite the source.
 
 ```json
 {
