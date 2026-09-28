@@ -42,7 +42,7 @@ The director chooses a production method from the text and character relationshi
 
 | Example | What it demonstrates | Files |
 | --- | --- | --- |
-| *About yesterday* — original dialogue | Gentle listener responses and a revised interruption example accepted after listening. | [Director’s script](examples/native-dialogue/director.md) · [HTML preview](examples/native-dialogue/director.html) · [Production JSON](examples/native-dialogue/plan.json) |
+| *Let me finish* — original dialogue | Two speakers interrupt each other in a native joint performance accepted after listening. | [Director’s script](examples/native-dialogue/director.md) · [HTML preview](examples/native-dialogue/director.html) · [Production JSON](examples/native-dialogue/plan.json) |
 | *The Magic Finger* — Roald Dahl | An English opening excerpt through the four gunshots: first-person narration, the classroom flashback, and the duck hunt. No invented listener reactions. | [Director's script](examples/the-magic-finger/director.md) · [HTML preview](examples/the-magic-finger/director.html) · [Production JSON](examples/the-magic-finger/plan.json) |
 | *Kong Yiji* — Lu Xun | A Chinese crowd scene: one leading heckler and two quieter, staggered voices. English direction with the original Chinese lines preserved. | [Director's script](examples/kong-yiji/director.md) · [HTML preview](examples/kong-yiji/director.html) · [Production JSON](examples/kong-yiji/plan.json) |
 
@@ -101,8 +101,7 @@ The command follows every page and preserves each exact voice ID. Known official
 - [Directing](references/directing.md): text analysis, production choices, and faithful reading versus adaptation.
 - [Scripts and auditions](references/preview.md): readable previews, sample discovery, and optional line auditions.
 - [Dialogue and scene arrangement](references/arrangement.md): JSON contracts, mixing, and revision scope.
-- [Original dialogue example](examples/native-dialogue/plan.json): a compact native listener-reaction plan.
-- [Interruption example](examples/native-dialogue/overlap-plan.json): the revised native argument accepted after listening.
+- [Interruption example](examples/native-dialogue/plan.json): the revised native argument accepted after listening.
 
 `scripts/` contains the executor, `tests/` the offline integration checks, `assets/` reusable plans and sample URLs, and `examples/` the curated public director's scripts. Full local work directories, recordings, credentials, and installed copies stay outside version control. Repository instructions are in English; user-facing scripts follow the requested language and preserve the source language unless translation is requested.
 

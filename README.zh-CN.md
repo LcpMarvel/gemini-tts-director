@@ -95,7 +95,6 @@ python3 scripts/tts.py voices --config /path/to/route.json --language-code en-GB
 - [导演稿与试听](references/preview.md)：可读页面、音色样本和可选试音。
 - [双人与群声编排](references/arrangement.md)：JSON 契约、混音和返工范围。
 - [双人示例](examples/native-dialogue/plan.json)、[群声示例](examples/kong-yiji/plan.json)：可直接 dry-run 的制作稿。
-- [插话 V2](examples/native-dialogue/overlap-plan.json)：已获用户试听认可的原生双人争论片段。
 
 下载仓库后可直接打开示例目录里的 `director.html`。提供的《The Magic Finger》EPUB 是连续故事，没有编号章节；英文示例取开篇的 50 个非空段落，共 13 段制作计划，读到“BANG! BANG! BANG! BANG! went the guns.”为止。公开页面播放官方已有音色样本；本地已生成试听录音，录音不随仓库发布。英文示例仍缺两段被供应商过滤的录音，不能当作完整成品。
 

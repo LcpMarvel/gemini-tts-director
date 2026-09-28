@@ -64,7 +64,6 @@ class Flow(unittest.TestCase):
             cfg = Path(folder) / 'route.json'
             tts.save(cfg, {'provider': 'google', 'model': 'gemini-3.8-flash-tts'})
             for name, count in (('examples/native-dialogue/plan.json', 1), ('examples/kong-yiji/plan.json', 4),
-                                ('examples/native-dialogue/overlap-plan.json', 1),
                                 ('examples/the-magic-finger/plan.json', 13)):
                 result = tts.render(tts.config(cfg), tts.read(root / name), Path(folder) / 'audio', dry=True)
                 self.assertEqual(len(result['requests']), count)
@@ -113,12 +112,12 @@ class Flow(unittest.TestCase):
                     {'speaker': 'Alex', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Charon'}}},
                     {'speaker': 'Sam', 'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': 'Kore'}}}]}})
                 self.assertEqual(body['contents'][0]['parts'], [
-                    {'text': "<breath>About yesterday,|I'm listening.|I'd like to explain.", 'speech_metadata': {'speaker': 'Alex', 'style': 'Hesitant, speaking softly'}},
-                    {'text': "Take your time,|Really?|I'm not upset.", 'speech_metadata': {'speaker': 'Sam', 'style': 'Gentle and reassuring'}}])
+                    {'text': "I was trying to tell you |I know,| why I left early |I was there!| but you wouldn't let me finish.", 'speech_metadata': {'speaker': 'Alex', 'style': 'Frustrated, speaking insistently at a brisk pace, continuing through the listener’s interruptions without yielding the floor.'}},
+                    {'text': "Because you keep saying |That's not| nobody told you |what I said!| when I called you twice.", 'speech_metadata': {'speaker': 'Sam', 'style': 'Defensive and quick, talking over the listener’s protest and continuing the sentence without waiting.'}}])
                 m = tts.render(c, plan, out)
                 tts.render(c, plan, out)
                 self.assertEqual(call.call_count, 1)
-                self.assertEqual(m['clips']['conversation']['takes'][0]['request'], body)
+                self.assertEqual(m['clips']['overlap-conversation']['takes'][0]['request'], body)
                 result = tts.export(out, root / 'dialogue.wav')
                 self.assertEqual(Path(result['audio']).read_bytes(), audio)
                 self.assertEqual(len(tts.read(result['timeline'])['segments']), 1)
@@ -126,7 +125,7 @@ class Flow(unittest.TestCase):
                 changed['clips'][0]['turns'][1]['style'] = 'Distant'
                 m = tts.render(c, changed, out)
                 self.assertEqual(call.call_count, 2)  # One entire joint take, not two speaker calls.
-                self.assertEqual(len(m['clips']['conversation']['takes']), 2)
+                self.assertEqual(len(m['clips']['overlap-conversation']['takes']), 2)
                 with self.assertRaises(ValueError):
                     tts.export(out, root / 'stale.wav')
                 # Reject malformed/unsupported dialogue before the first paid call, even after a valid clip.
@@ -157,7 +156,7 @@ class Flow(unittest.TestCase):
                 self.assertEqual(call.call_count, 4)
                 result = tts.export(root / 'mixed', root / 'mixed.wav')
                 timeline = tts.read(result['timeline'])
-                self.assertEqual([s['clip'] for s in timeline['segments']], ['intro', 'conversation'])
+                self.assertEqual([s['clip'] for s in timeline['segments']], ['intro', 'overlap-conversation'])
                 self.assertEqual(timeline['segments'][-1]['end'], .02)
 
     def test_scene_mixing_and_remix_without_tts(self):

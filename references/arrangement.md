@@ -8,17 +8,28 @@ Choose joint performance only after [reading the text and relationships](directi
 
 ```json
 {
-  "id": "conversation",
-  "speakers": {"Alex": "Charon", "Sam": "Kore"},
+  "id": "overlap-conversation",
+  "speakers": {
+    "Alex": "Charon",
+    "Sam": "Kore"
+  },
   "turns": [
-    {"speaker": "Alex", "text": "About yesterday,|I'm listening.|I'd like to explain.", "style": "Hesitant, speaking softly"},
-    {"speaker": "Sam", "text": "Take your time,|Really?|I'm not upset.", "style": "Gentle and reassuring"}
+    {
+      "speaker": "Alex",
+      "text": "I was trying to tell you |I know,| why I left early |I was there!| but you wouldn't let me finish.",
+      "style": "Frustrated, speaking insistently at a brisk pace, continuing through the listener’s interruptions without yielding the floor."
+    },
+    {
+      "speaker": "Sam",
+      "text": "Because you keep saying |That's not| nobody told you |what I said!| when I called you twice.",
+      "style": "Defensive and quick, talking over the listener’s protest and continuing the sentence without waiting."
+    }
   ]
 }
 ```
 
 - A native dialogue clip has exactly two `speakers`; keys must match `turns[].speaker`. Each turn has `text` and optional `style`, `events`, and `source_text`. The clip may keep the scene's `source_text`. Do not also set solo `voice/text/style/events`.
-- Text inside `|...|` is spoken by the *other* speaker: Sam responds in Alex's turn above, and Alex responds in Sam's. Multiple responses or none are valid. Bars must be paired and contain text. Resolve literal bars in the source before submission.
+- Text inside `|...|` is spoken by the *other* speaker: Sam interrupts in Alex's turn above, and Alex interrupts in Sam's. Multiple responses or none are valid. Bars must be paired and contain text. Resolve literal bars in the source before submission.
 - A short response at a comma may sound like orderly turn-taking. For intended interruption, place responses inside an unfinished thought, optionally across multiple paired segments, and direct the leading speaker to continue without yielding. Preserve the source words; do not invent an argument or add interjections to faithful readings. Audition the result: bars express intent and do not guarantee simultaneous speech. Use explicit local layering when independent timing control is needed, and label that mode accurately.
 - `events.at` is a Unicode character offset in that turn's original `text`, including bars and response text. Keep the action's speaker clear. A solo `<sigh>` does not mean a listener interjects.
 - Requests use Gemini `schema=metadata`, one part per turn, `speech_metadata.speaker/style`, and `multiSpeakerVoiceConfig.speakerVoiceConfigs[].voiceConfig.prebuiltVoiceConfig.voiceName`. This follows [Google's dialogue and backchannel guide](https://ai.google.dev/gemini-api/docs/generate-content/speech-generation#backchannels-and-overlapping-speech). Verify other models and routes. There is no 30-voice preset allowlist. Do not put a custom `voice_...` ID or temporary key into a preset field.
@@ -33,7 +44,7 @@ python3 "$TTS" export --out dialogue-audio --output dialogue.wav
 
 Show each turn's speaker, words, and short style in the reading copy. Label a listener's response at its position. One joint clip gets one player; before generation, label it “Pending.” Do not present sliced portions as independent recordings.
 
-In the 2026-09-28 Google Gemini 3.8 Flash TTS trial, the user heard no noticeable interruption in the 11.96-second gentle example above. The [revised original argument](../examples/native-dialogue/overlap-plan.json) used two listener segments inside each leading turn and directions to keep speaking. It returned a 7.8-second joint WAV, with no local overlap mixing, and the user accepted it. This is one listening result, not a guarantee for other scripts or routes.
+In the 2026-09-28 Google Gemini 3.8 Flash TTS trial, the user heard no noticeable interruption in an earlier 11.96-second gentle dialogue. The [revised original argument](../examples/native-dialogue/plan.json) used two listener segments inside each leading turn and directions to keep speaking. It returned a 7.8-second joint WAV, with no local overlap mixing, and the user accepted it. This is one listening result, not a guarantee for other scripts or routes.
 
 ## Layered crowd example
 

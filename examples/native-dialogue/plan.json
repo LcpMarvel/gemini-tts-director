@@ -1,9 +1,9 @@
 {
-  "title": "About yesterday — native two-speaker dialogue",
+  "title": "Let me finish — overlapping native dialogue trial",
   "clips": [
     {
-      "id": "conversation",
-      "source_text": "Alex: About yesterday,\nSam (responding): I'm listening.\nAlex: I'd like to explain.\nSam: Take your time,\nAlex (responding): Really?\nSam: I'm not upset.",
+      "id": "overlap-conversation",
+      "source_text": "Alex: I was trying to tell you why I left early but you wouldn't let me finish.\nSam (overlapping Alex): I know, I was there!\nSam: Because you keep saying nobody told you when I called you twice.\nAlex (overlapping Sam): That's not what I said!",
       "speakers": {
         "Alex": "Charon",
         "Sam": "Kore"
@@ -11,19 +11,13 @@
       "turns": [
         {
           "speaker": "Alex",
-          "text": "About yesterday,|I'm listening.|I'd like to explain.",
-          "style": "Hesitant, speaking softly",
-          "events": [
-            {
-              "at": 0,
-              "tag": "breath"
-            }
-          ]
+          "text": "I was trying to tell you |I know,| why I left early |I was there!| but you wouldn't let me finish.",
+          "style": "Frustrated, speaking insistently at a brisk pace, continuing through the listener’s interruptions without yielding the floor."
         },
         {
           "speaker": "Sam",
-          "text": "Take your time,|Really?|I'm not upset.",
-          "style": "Gentle and reassuring"
+          "text": "Because you keep saying |That's not| nobody told you |what I said!| when I called you twice.",
+          "style": "Defensive and quick, talking over the listener’s protest and continuing the sentence without waiting."
         }
       ]
     }
