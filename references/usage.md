@@ -100,7 +100,7 @@ python3 -m unittest discover -s tests -v
 
 On that date Google Gemini 3.8 Flash TTS generated five short role lines plus four crowd tracks. The roughly 6.22-second local crowd mix was auditioned and accepted by the user. This does not validate other providers, every voice or tag, or broad listening quality.
 
-Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export, but no live API or listening validation. Only the Gemini metadata route implements this joint request. It does not establish support on intermediary `speech` routes.
+Native two-speaker dialogue and `|listener response|` have offline tests for requests, take selection, edits, and export. On 2026-09-28 the Google Gemini 3.8 Flash TTS route accepted the original dialogue example and returned one 11.96-second WAV. Speaker assignment, listener responses, and listening quality still await audition. Only the Gemini metadata route implements this joint request. It does not establish support on intermediary `speech` routes.
 
 Voice design/replication/management, streaming playback, Interactions, remote Batch, and Flex/Priority are outside this skill’s scope. Native Google documentation does not establish intermediary support.
 

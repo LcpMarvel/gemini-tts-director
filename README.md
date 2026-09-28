@@ -101,4 +101,4 @@ python3 -m unittest discover -s tests -v
 
 Tests use mock responses and a local HTTP server, not paid TTS. They cover request mapping, take reuse, stale selections, native dialogue, mixing, export, and error recovery.
 
-The Google route has generated five character auditions and four crowd stems in a local trial. Native dialogue has passed offline validation; its live API behavior and listening quality remain unverified. Model names, voice availability, and provider capabilities can change—check the route you intend to use.
+The Google route has generated five character auditions and four crowd stems in a local trial. The Google route also accepted the native dialogue example and returned one WAV; speaker assignment, listener responses, and listening quality still await audition. Model names, voice availability, and provider capabilities can change—check the route you intend to use.

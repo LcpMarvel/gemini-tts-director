@@ -4,7 +4,7 @@ First deliver reviewable JSON. Generation and postproduction both follow it. `cl
 
 ## Native two-speaker dialogue and listener responses
 
-Choose joint performance only after [reading the text and relationships](directing.md#read-the-text-before-choosing-a-mode). The [complete dialogue plan](../examples/native-dialogue/plan.json) is an original example with no generated audio:
+Choose joint performance only after [reading the text and relationships](directing.md#read-the-text-before-choosing-a-mode). The [complete dialogue plan](../examples/native-dialogue/plan.json) is an original example recorded locally through the Google route; audio is not bundled:
 
 ```json
 {
@@ -30,7 +30,7 @@ python3 "$TTS" render --config route.json --plan dialogue-plan.json --out dialog
 python3 "$TTS" export --out dialogue-audio --output dialogue.wav
 ```
 
-Show each turn's speaker, words, and short style in the reading copy. Label a listener's response at its position. One joint clip gets one player; before generation, label it “Pending.” Do not present sliced portions as independent recordings. Request and file handling have offline tests; live API generation and the naturalness of the responses remain unverified.
+Show each turn's speaker, words, and short style in the reading copy. Label a listener's response at its position. One joint clip gets one player; before generation, label it “Pending.” Do not present sliced portions as independent recordings. Request and file handling have offline tests. A local Google Gemini 3.8 Flash TTS request returned one 11.96-second WAV on 2026-09-28; speaker assignment and the naturalness of the responses still await audition.
 
 ## Layered crowd example
 

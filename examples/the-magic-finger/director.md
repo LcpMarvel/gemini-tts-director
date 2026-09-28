@@ -1,6 +1,6 @@
 # The Magic Finger — director’s script
 
-Roald Dahl · Opening excerpt · No TTS generated
+Roald Dahl · Opening excerpt · Partial recording · Audio not bundled
 
 A child tells the story directly to the listener: brisk, certain of her own judgment, and suddenly less certain when her anger has consequences. Keep it intimate rather than performing a cartoon child.
 
@@ -179,3 +179,7 @@ BANG! BANG! BANG! BANG! went the guns.
 The age calculation and immediate correction are deliberate and remain unchanged. The capitalized declaration, K-a-t spelling, and four BANGs also come from the source. The reading stops at the requested gunshot sentence; the next sentence is not included. No words, listener reactions, laughter, or sound effects have been added. Line breaks were normalized from the supplied EPUB; illustrations and front matter are outside this excerpt.
 
 Text: *The Magic Finger* by Roald Dahl, from the user-supplied EPUB. Director’s notes are separate from the original prose.
+
+## Recording status
+
+Partial local recording: 11/13 takes completed. Missing sections: hunting, duck-hunt. Gemini filtered output during the trial; this is not a complete reading. Recordings are not bundled with this example.

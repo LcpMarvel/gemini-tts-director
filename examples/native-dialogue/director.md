@@ -49,6 +49,6 @@ Take your time,|Really?|I'm not upset.
 
 ## Recording status
 
-Pending · No dialogue audio generated. One request produces one joint WAV; changing either voice or any line requires a new take of the whole clip. Request handling has offline tests; live API behavior and listening quality remain unverified.
+Generated locally with Google Gemini 3.8 Flash TTS on 2026-09-28 · 0:12. One joint WAV returned for both speakers. Listening quality awaits review; recordings are not bundled with this example. Changing either voice or any line requires a new take of the whole clip.
 
 After generation, listen for Sam saying “I’m listening” and Alex saying “Really?” while the leading voice stays coherent. Check that neither voice reads the bars or role labels aloud. This original dialogue was written for the example.
