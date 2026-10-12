@@ -224,13 +224,32 @@ def voices(c, filters=None):
             'samples_checked_at': samples['checked_at'], 'voices': result}
 
 
-def wav_data(data, mime, rate):
-    if data.startswith(b'RIFF') and data[8:12] == b'WAVE':
+def read_wav(data):
+    try:
         with wave.open(io.BytesIO(data), 'rb') as f:
             params = f.getparams()
             frames = f.readframes(params.nframes)
-        require(params.comptype == 'NONE' and params.nframes > 0 and len(frames) == params.nframes * params.nchannels * params.sampwidth, 'WAV is empty or incomplete')
-        return data
+    except (wave.Error, EOFError) as error:
+        raise ValueError(f'WAV is corrupt: {error}') from error
+    require(params.comptype == 'NONE' and params.nframes > 0 and len(frames) == params.nframes * params.nchannels * params.sampwidth, 'WAV is empty or incomplete')
+    return params, frames
+
+
+def wav_data(data, mime, rate):
+    if data.startswith(b'RIFF') and data[8:12] == b'WAVE':
+        params, frames = read_wav(data)
+        if not (frames.startswith(b'RIFF') and frames[8:12] == b'WAVE'):
+            return data
+        # Some routes (seen on AIHubMix) wrap a whole WAV, including a trailing C2PA provenance
+        # chunk, inside the outer data chunk. Played as samples, the inner header clicks and the
+        # metadata buzzes, so keep only the inner PCM.
+        inner, pcm = read_wav(frames)
+        require(not (pcm.startswith(b'RIFF') and pcm[8:12] == b'WAVE'), 'WAV is nested more than once')
+        out = io.BytesIO()
+        with wave.open(out, 'wb') as f:
+            f.setparams(inner)
+            f.writeframes(pcm)
+        return out.getvalue()
     require(mime.split(';')[0].strip().lower() in ('audio/pcm', 'audio/l16', 'audio/lpcm', 'application/octet-stream'), 'Expected WAV/PCM, received another content type')
     require(data and len(data) % 2 == 0 and not data.lstrip().startswith((b'{', b'<')), 'PCM is empty, corrupt, or an error response')
     matched = re.search(r'rate=(\d+)', mime)

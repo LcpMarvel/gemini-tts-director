@@ -93,6 +93,28 @@ class Flow(unittest.TestCase):
             self.assertEqual(events, clip.get('events', []))
             self.assertIn(clip['source_text'], (example / 'director.md').read_text())
 
+    def test_nested_wav_with_provenance_chunk_keeps_only_inner_audio(self):
+        # Shape observed from AIHubMix: the outer data chunk holds a whole WAV plus a C2PA chunk.
+        pcm = struct.pack('<4h', 1000, -1000, 2000, -2000)
+        def riff(*chunks):
+            body = b''.join(cid + struct.pack('<I', len(d)) + d + b'\0' * (len(d) & 1) for cid, d in chunks)
+            return b'RIFF' + struct.pack('<I', 4 + len(body)) + b'WAVE' + body
+        fmt = struct.pack('<HHIIHH', 1, 1, 24000, 48000, 2, 16)
+        inner = riff((b'fmt ', fmt), (b'data', pcm), (b'C2PA', b'Applied imperceptible SynthID watermark.'))
+        nested = riff((b'fmt ', fmt), (b'data', inner))
+        c = {**tts.PROFILES['aihubmix'], 'provider': 'aihubmix', 'model': 'gemini-3.8-flash-tts'}
+        clean, _ = tts.decode(c, nested, 'audio/wav')
+        with wave.open(io.BytesIO(clean), 'rb') as f:
+            self.assertEqual((f.getnchannels(), f.getsampwidth(), f.getframerate()), (1, 2, 24000))
+            self.assertEqual(f.readframes(f.getnframes()), pcm)
+        self.assertNotIn(b'C2PA', clean)
+        plain = riff((b'fmt ', fmt), (b'data', pcm))
+        self.assertEqual(tts.wav_data(plain, 'audio/wav', 24000), plain)
+        with self.assertRaises(ValueError):
+            tts.wav_data(riff((b'fmt ', fmt), (b'data', nested)), 'audio/wav', 24000)
+        with self.assertRaises(ValueError):
+            tts.wav_data(riff((b'fmt ', fmt), (b'data', inner[:-60])), 'audio/wav', 24000)
+
     def test_native_dialogue_lifecycle(self):
         plan = tts.read(Path(__file__).parents[1] / 'examples/native-dialogue/plan.json')
         with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ, {'TTS_TEST_KEY': 'local-test-only'}):
